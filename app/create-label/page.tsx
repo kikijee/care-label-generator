@@ -14,16 +14,17 @@ const Page = () => {
 
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>(["English"]); // Default to English checked
 
-    const [fiberContent, setFiberContent] = useState([{ material: "Select", percentage: "Select" }]);
+    const [fiberContent, setFiberContent] = useState([{ material: 0, percentage: "Select" }]);
     const [careInstructionsList, setCareInstructionsList] = useState(["Select"]);
 
-    const handleFiberChange = (index: number, field: "material" | "percentage", value: string) => {
+    const handleFiberChange = (index: number, field: "material" | "percentage", value: any) => {
         const updated = [...fiberContent];
-        updated[index][field] = value;
+        if(field === "percentage"){updated[index][field] = value;}
+        else{updated[index][field] = value;}
         setFiberContent(updated);
     };
 
-    const addFiberRow = () => setFiberContent([...fiberContent, { material: "Select", percentage: "Select" }]);
+    const addFiberRow = () => setFiberContent([...fiberContent, { material: 0, percentage: "Select" }]);
     const removeFiberRow = () => setFiberContent(fiberContent.slice(0, -1));
 
     const handleCareChange = (index: number, value: string) => {
@@ -118,10 +119,10 @@ const Page = () => {
                             label="Select"
                             helperText="Please select material"
                             value={data.material}
-                            onChange={(e) => handleFiberChange(i, "material", e.target.value)}
+                            onChange={(e) => {console.log(fiberContent);handleFiberChange(i, "material", e.target.value)}}
                         >
-                            {materials.english.map((option) => (
-                                <MenuItem key={option} value={option}>
+                            {materials.english.map((option,i) => (
+                                <MenuItem key={option} value={i}>
                                     {option}
                                 </MenuItem>
                             ))}
@@ -254,13 +255,14 @@ const Page = () => {
                     height: '90vh',
                     borderRadius: 5,
                     display: 'flex',
+                    justifyContent: 'center',
                     flexWrap: "wrap",
                     gap: 2,
                     padding: 4,
                     overflowY: "auto"
                 }}
             >
-                {selectedLanguages.map((data, i) => (
+                {selectedLanguages.map((data : string, i) => (
                     <Box key={i}>
                         <Typography>
                             {data}
@@ -270,8 +272,22 @@ const Page = () => {
                                 width: 200,
                                 height: 350,
                                 bgcolor: 'white',
+                                paddingTop:3
                             }}
                         >
+                            {  fiberContent.map((fiber, index)=>(
+                                fiber.material !== 0 && fiber.percentage !== 'Select' &&
+                                <Typography key={index} sx={{color:'#000', fontSize:10}}>
+                                   {fiber.percentage} {materials[data.toLowerCase().replace(' ','_') as keyof typeof materials][fiber.material]}
+                                </Typography>
+                                
+                            ))}
+                            { careInstructionsList.map((care, index)=>(
+                                care !== 'Select' &&
+                                <Typography key={index} sx={{color:'#000', fontSize:10}}>
+                                    {care}
+                                </Typography>
+                            ))}
                         </Box>
                     </Box>
                 ))}
