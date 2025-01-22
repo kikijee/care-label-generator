@@ -1,4 +1,4 @@
-import { Container, Typography, CssBaseline,Box } from "@mui/material";
+import { Container, Typography, CssBaseline, Box, Divider } from "@mui/material";
 
 export default function Home() {
   return (
@@ -9,16 +9,50 @@ export default function Home() {
           display:"flex",
           justifyContent:"center",
           alignItems:"center",
-          minHeight:"100vh"
+          minHeight:"100vh",
+          gap:5
         }}
       >
-        <Typography
+        <Box
           sx={{
-            fontSize:40
+            display:'flex',
+            flexDirection:"column"
           }}
         >
-          CARE LABEL GENERATOR
-        </Typography>
+          <Divider sx = {{width:'75%'}}/>
+          <Typography
+            sx={{
+              fontSize:40
+            }}
+          >
+            CARE LABEL GENERATOR
+          </Typography>
+          <Typography
+            sx={{
+              fontSize:20,
+              mt:5
+            }}
+          >
+            An application to streamline care label prototyping and creation.
+          </Typography>
+        </Box>
+        <Box
+            component="img"
+            src={'/images/care-label-home-page.jpg'}
+            alt="Background Graphic"
+            sx={{
+              zIndex: -1,
+              opacity:0.4,
+              width: {
+                xs: "300px",
+                sm: "350px",
+                md: "400px",
+                lg: "550px",
+                xl: "600px",
+              },
+              height: "auto",
+            }}
+          />
       </Container>
     </Box>
   );

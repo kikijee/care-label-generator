@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { Colors } from '../theme/colors';
 
-const pages = [['create label','/create-label'], ['about us','/about-us']];
+const pages = [['create label','/create-label']];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function NavBar() {
@@ -38,7 +38,7 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="fixed" sx={{bgcolor: Colors.navbar}}>
+    <AppBar position="fixed" sx={{background: "linear-gradient(90deg, #000 30%, #444444 100%)"}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <ReceiptLongIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />

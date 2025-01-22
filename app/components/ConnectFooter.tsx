@@ -11,7 +11,7 @@ const ConnectFooter = () => {
                 py: 2,
                 px: 2,
                 mt: 'auto',
-                backgroundColor: Colors.header_color,
+                background: "linear-gradient(90deg, #000 30%, #444444 100%)",
                 width: '100%',
             }}
         >
@@ -25,61 +25,8 @@ const ConnectFooter = () => {
                     gap: 2, 
                 }}
             >
-                <Box>
-                    <Typography
-                        sx={{
-                            fontSize: {
-                                xl:30,
-                                lg:28,
-                                md:26,
-                                sm:24,
-                                xs:22
-                            } ,
-                            color: Colors.black
-                        }}
-                    >
-                        EZ-LABEL
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            bgcolor: Colors.black,
-                            borderRadius: 10,
-                            px: 3,
-                            py: 1,
-                            mt: 4
-                        }}
-                        href="/contact"
-                    >
-                        <Typography
-                            sx={{
-                                color: Colors.white,
-                                wordSpacing: 5,
-                                letterSpacing: 1
-                            }}
-                        >
-                            GET IN TOUCH
-                        </Typography>
-                    </Button>
-                </Box>
-                <Box>
-                    <Typography
-                        sx={{
-                            color: Colors.black,
-                            wordSpacing: 5,
-                            letterSpacing: 1,
-                            fontSize: {
-                                xl:20,
-                                lg:20,
-                                md:18,
-                                sm:18,
-                                xs:18
-                            }
-                        }}
-                    >
-                        Socials
-                    </Typography>
-                </Box>
+                
+                
             </Container>
             <Container
                 maxWidth="md"
@@ -87,7 +34,7 @@ const ConnectFooter = () => {
                     mt: 3
                 }}
             >
-                <Divider sx={{ bgcolor: Colors.black }} />
+                <Divider sx={{ bgcolor: Colors.white }} />
                 <Box
                     sx={{
                         display: "flex",
@@ -100,7 +47,7 @@ const ConnectFooter = () => {
                 >
                     <Typography
                         sx={{
-                            color: Colors.black,
+                            color: Colors.white,
                             fontSize: {
                                 xl:30,
                                 lg:28,
@@ -114,7 +61,7 @@ const ConnectFooter = () => {
                     </Typography>
                     <Typography
                         sx={{
-                            color: Colors.black,
+                            color: Colors.white,
                             opacity: 0.5
                         }}
                     >

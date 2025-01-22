@@ -82,15 +82,22 @@ const Page = () => {
                     xs:'column'
                 },
                 gap: 5,
-                pt: 8
+                pt: {xl:8,lg:8,md:8,sm:7,xs:7}
             }}
         >
             <CssBaseline />
             { !fullscreen &&
             <Container
                 sx={{
-                    bgcolor: "#303030",
+                    bgcolor: "#212121",
                     minHeight: '100vh',
+                    width: {
+                        xl:'70%',
+                        lg:'70%',
+                        md:'100%',
+                        sm:'100%',
+                        xs:'100%'
+                    }
                 }}
             >
                 <Box
@@ -264,6 +271,8 @@ const Page = () => {
 
             </Container>
             }
+            {
+            selectedLanguages.length !== 0 ?
             <Container
                 sx={{
                     minHeight: '100vh',
@@ -275,6 +284,19 @@ const Page = () => {
                     padding: 4,
                 }}
             >
+                <Box
+                    sx={{
+                        width:'100%'
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontSize: 20
+                        }}
+                    >
+                        LABEL VIEW
+                    </Typography>
+                </Box>
                 {selectedLanguages.map((data: string, i) => (
                     <Box key={i}>
                         <Typography>
@@ -324,6 +346,28 @@ const Page = () => {
                     </div>
                 </Draggable> */}
             </Container>
+            :
+            <Container
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignContent: 'center',
+                    justifyContent: 'center', 
+                    flexWrap: "wrap",
+                    gap: 2,
+                    padding: 4,
+                }}
+            >
+                <Typography
+                    sx={{
+                        fontSize:30,
+                        opacity:0.3
+                    }}
+                >
+                    Select Language Options
+                </Typography>
+            </Container>
+            }
             <Box
                 sx={{
                     position: 'fixed',
