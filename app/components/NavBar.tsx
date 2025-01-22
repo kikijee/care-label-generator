@@ -38,7 +38,7 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="static" sx={{bgcolor: Colors.navbar}}>
+    <AppBar position="fixed" sx={{bgcolor: Colors.navbar}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <ReceiptLongIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />

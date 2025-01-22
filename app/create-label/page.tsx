@@ -1,39 +1,47 @@
 'use client'
-import { Box, Typography, CssBaseline, Container, TextField, MenuItem, Button, Checkbox } from "@mui/material"
+import { Box, Typography, CssBaseline, Container, TextField, MenuItem, Button, Checkbox, IconButton } from "@mui/material"
 import { materials, percentages, careInstructions, languages } from "@/public/data/data"
 import { useState } from "react"
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Draggable from "react-draggable";
 import React, { useRef } from 'react';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 
 const Page = () => {
     const [rowNumFiber, setRowNumFiber] = useState(1)
     const [rowNumCare, setRowNumCare] = useState(1)
 
+    const [fullscreen, setFullscreen] = useState(false)
+
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>(["English"]); // Default to English checked
 
     const [fiberContent, setFiberContent] = useState([{ material: 0, percentage: "Select" }]);
-    const [careInstructionsList, setCareInstructionsList] = useState(["Select"]);
+    const [careInstructionsList, setCareInstructionsList] = useState<number[]>([0]);
+
+    const handleScreenChange = () =>{
+        setFullscreen(!fullscreen);
+    }
 
     const handleFiberChange = (index: number, field: "material" | "percentage", value: any) => {
         const updated = [...fiberContent];
-        if(field === "percentage"){updated[index][field] = value;}
-        else{updated[index][field] = value;}
+        if (field === "percentage") { updated[index][field] = value; }
+        else { updated[index][field] = value; }
         setFiberContent(updated);
     };
 
     const addFiberRow = () => setFiberContent([...fiberContent, { material: 0, percentage: "Select" }]);
     const removeFiberRow = () => setFiberContent(fiberContent.slice(0, -1));
 
-    const handleCareChange = (index: number, value: string) => {
+    const handleCareChange = (index: number, value: any) => {
         const updated = [...careInstructionsList];
         updated[index] = value;
         setCareInstructionsList(updated);
     };
 
-    const addCareRow = () => setCareInstructionsList([...careInstructionsList, "Select"]);
+    const addCareRow = () => setCareInstructionsList([...careInstructionsList, 0]);
     const removeCareRow = () => setCareInstructionsList(careInstructionsList.slice(0, -1));
 
     const myRef = useRef<HTMLDivElement>(null);
@@ -66,17 +74,23 @@ const Page = () => {
             sx={{
                 display: "flex",
                 minHeight: "100vh",
+                flexDirection:{
+                    xl:'row',
+                    lg:'row',
+                    md:'column',
+                    sm:'column',
+                    xs:'column'
+                },
                 gap: 5,
-                padding: 2
+                pt: 8
             }}
         >
             <CssBaseline />
+            { !fullscreen &&
             <Container
                 sx={{
                     bgcolor: "#303030",
-                    height: '90vh',
-                    borderRadius: 5,
-                    overflowY: "auto"
+                    minHeight: '100vh',
                 }}
             >
                 <Box
@@ -119,9 +133,9 @@ const Page = () => {
                             label="Select"
                             helperText="Please select material"
                             value={data.material}
-                            onChange={(e) => {console.log(fiberContent);handleFiberChange(i, "material", e.target.value)}}
+                            onChange={(e) => { handleFiberChange(i, "material", e.target.value) }}
                         >
-                            {materials.english.map((option,i) => (
+                            {materials.english.map((option, i) => (
                                 <MenuItem key={option} value={i}>
                                     {option}
                                 </MenuItem>
@@ -172,7 +186,7 @@ const Page = () => {
                         CARE INSTRUCTIONS
                     </Typography>
                 </Box>
-                {careInstructionsList.map((data,i) => (
+                {careInstructionsList.map((data, i) => (
                     <Box
                         key={i}
                         sx={{
@@ -187,10 +201,10 @@ const Page = () => {
                             label="Select"
                             helperText="Please select care instructions"
                             value={data}
-                            onChange={(e) => handleCareChange(i,e.target.value)}
+                            onChange={(e) => {handleCareChange(i, e.target.value)}}
                         >
-                            {careInstructions.english.map((option) => (
-                                <MenuItem key={option} value={option}>
+                            {careInstructions.english.map((option , i) => (
+                                <MenuItem key={option} value={i}>
                                     {option}
                                 </MenuItem>
                             ))}
@@ -249,20 +263,19 @@ const Page = () => {
                 </Box>
 
             </Container>
+            }
             <Container
                 sx={{
-                    bgcolor: "#303030",
-                    height: '90vh',
-                    borderRadius: 5,
+                    minHeight: '100vh',
                     display: 'flex',
-                    justifyContent: 'center',
+                    alignContent: !fullscreen ? 'flex-start': '',
+                    justifyContent: fullscreen ? 'center': '', 
                     flexWrap: "wrap",
                     gap: 2,
                     padding: 4,
-                    overflowY: "auto"
                 }}
             >
-                {selectedLanguages.map((data : string, i) => (
+                {selectedLanguages.map((data: string, i) => (
                     <Box key={i}>
                         <Typography>
                             {data}
@@ -272,20 +285,20 @@ const Page = () => {
                                 width: 200,
                                 height: 350,
                                 bgcolor: 'white',
-                                paddingTop:3
+                                paddingTop: 3
                             }}
                         >
-                            {  fiberContent.map((fiber, index)=>(
+                            {fiberContent.map((fiber, index) => (
                                 fiber.material !== 0 && fiber.percentage !== 'Select' &&
-                                <Typography key={index} sx={{color:'#000', fontSize:10}}>
-                                   {fiber.percentage} {materials[data.toLowerCase().replace(' ','_') as keyof typeof materials][fiber.material]}
+                                <Typography key={index} sx={{ color: '#000', fontSize: 10 }}>
+                                    {fiber.percentage} {materials[data.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}
                                 </Typography>
-                                
+
                             ))}
-                            { careInstructionsList.map((care, index)=>(
-                                care !== 'Select' &&
-                                <Typography key={index} sx={{color:'#000', fontSize:10}}>
-                                    {care}
+                            {careInstructionsList.map((care, index) => (
+                                care !== 0 &&
+                                <Typography key={index} sx={{ color: '#000', fontSize: 10 }}>
+                                    {careInstructions[data.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}
                                 </Typography>
                             ))}
                         </Box>
@@ -311,6 +324,29 @@ const Page = () => {
                     </div>
                 </Draggable> */}
             </Container>
+            <Box
+                sx={{
+                    position: 'fixed',
+                    bottom: 16,  // Distance from bottom
+                    right: 16,   // Distance from right
+                    zIndex: 1000 // Ensures it stays above other content
+                }}
+            >
+                <IconButton
+                    sx={{
+                        color:'#fff',
+                        bgcolor:'#000',
+                        border:2,
+                    }}
+                    onClick={handleScreenChange}
+                >
+                    { !fullscreen ? 
+                    <FullscreenIcon sx={{fontSize:30}}/>
+                    :
+                    <FullscreenExitIcon sx={{fontSize:30}}/>
+                    }
+                </IconButton>
+            </Box>
         </Box>
     )
 }
