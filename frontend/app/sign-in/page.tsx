@@ -3,10 +3,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
@@ -40,12 +38,12 @@ const Card = styled(MuiCard)(({ theme }) => ({
 export default function SignIn() {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
+  const [passwordError] = React.useState(false);
   const [notification, setNotification] = React.useState(false);
-  const [notificationStatus, setNotificationStatus] = React.useState(false);
-  const [notificationMessage, setNotificationMessage] = React.useState("");
+  const [notificationStatus] = React.useState(false);
+  const [notificationMessage] = React.useState("");
 
-  const [signUpDisabled, setSignUpDisabled] = React.useState(false);
+  const [signUpDisabled] = React.useState(false);
 
 
   const validateInputs = () => {
@@ -70,9 +68,9 @@ export default function SignIn() {
     setNotification(false);
   }
 
-  const handleOpenNotification = () =>{
-    setNotification(true);
-  }  
+  // const handleOpenNotification = () =>{
+  //   setNotification(true);
+  // }  
 
 //   const handleSubmit = async (event) => {
 //     event.preventDefault();
@@ -197,7 +195,7 @@ export default function SignIn() {
                   Sign in
                 </Button>
                 <Typography sx={{ textAlign: 'center' }}>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <span>
                     <Link
                       href="/sign-up"

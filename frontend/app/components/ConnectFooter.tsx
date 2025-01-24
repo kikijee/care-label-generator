@@ -1,6 +1,4 @@
-import { Box, Container, IconButton, Typography, Divider } from "@mui/material";
-import { LinkedIn, Instagram, GitHub } from "@mui/icons-material";
-import Button from "@mui/material/Button";
+import { Box, Container, Typography, Divider } from "@mui/material";
 import { Colors } from "../theme/colors";
 
 const ConnectFooter = () => {

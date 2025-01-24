@@ -4,15 +4,11 @@ import { materials, percentages, careInstructions, languages } from "@/public/da
 import { useState } from "react"
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Draggable from "react-draggable";
-import React, { useRef } from 'react';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 
 const Page = () => {
-    const [rowNumFiber, setRowNumFiber] = useState(1)
-    const [rowNumCare, setRowNumCare] = useState(1)
 
     const [fullscreen, setFullscreen] = useState(false)
 
@@ -44,22 +40,6 @@ const Page = () => {
     const addCareRow = () => setCareInstructionsList([...careInstructionsList, 0]);
     const removeCareRow = () => setCareInstructionsList(careInstructionsList.slice(0, -1));
 
-    const myRef = useRef<HTMLDivElement>(null);
-
-
-    const handleRowNumFiber = (i: number) => {
-        const num = rowNumFiber + i
-        if (num >= 1) {
-            setRowNumFiber(num)
-        }
-    }
-
-    const handleRowNumCare = (i: number) => {
-        const num = rowNumCare + i
-        if (num >= 1) {
-            setRowNumCare(num)
-        }
-    }
 
     const handleCheckboxChange = (lang: string) => {
         setSelectedLanguages((prev) =>
