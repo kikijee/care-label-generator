@@ -87,7 +87,7 @@ function NavBar() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page[0]} onClick={handleCloseNavMenu} href={page[1]}>
+                <MenuItem component='a' key={page[0]} onClick={handleCloseNavMenu} href={page[1]}>
                   <Typography sx={{ textAlign: 'center' }}>{page[0]}</Typography>
                 </MenuItem>
               ))}
