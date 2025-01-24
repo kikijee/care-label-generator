@@ -10,7 +10,14 @@ export default function Home() {
           justifyContent:"center",
           alignItems:"center",
           minHeight:"100vh",
-          gap:5
+          gap:5,
+          flexDirection:{
+            xl:"row",
+            lg:"row",
+            md:"column",
+            sm:"column",
+            xs:"column"
+          }
         }}
       >
         <Box

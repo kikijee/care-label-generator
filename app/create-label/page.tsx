@@ -143,7 +143,7 @@ const Page = () => {
                             onChange={(e) => { handleFiberChange(i, "material", e.target.value) }}
                         >
                             {materials.english.map((option, i) => (
-                                <MenuItem key={option} value={i}>
+                                <MenuItem key={i} value={i}>
                                     {option}
                                 </MenuItem>
                             ))}
@@ -209,9 +209,21 @@ const Page = () => {
                             helperText="Please select care instructions"
                             value={data}
                             onChange={(e) => {handleCareChange(i, e.target.value)}}
+                            sx={{
+                                width: '250px'
+                            }}
+                            SelectProps={{
+                                MenuProps: {
+                                    PaperProps: {
+                                        sx: {
+                                            maxWidth: '700px',  // Limit dropdown width
+                                        }
+                                    }
+                                }
+                            }}
                         >
                             {careInstructions.english.map((option , i) => (
-                                <MenuItem key={option} value={i}>
+                                <MenuItem key={i} value={i}>
                                     {option}
                                 </MenuItem>
                             ))}

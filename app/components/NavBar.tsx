@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { Colors } from '../theme/colors';
 
-const pages = [['create label','/create-label']];
+const pages = [['create label','/create-label'],['login','/sign-in'],['sign up','/sign-up']];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function NavBar() {
@@ -128,7 +128,7 @@ function NavBar() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="https://media.licdn.com/dms/image/v2/D5603AQELrycYglbOLQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1728903407240?e=1742428800&v=beta&t=hrLSpRuhNY1fCjhQmLH7jduuLHWH3ERWkysgul3eFRg" />
+                <Avatar alt="Remy Sharp" src="https://media.licdn.com/dms/image/v2/D5603AQG_loVKxtclfQ/profile-displayphoto-shrink_800_800/B56ZSQpjs8HQAc-/0/1737593608312?e=1743033600&v=beta&t=O_IUwfVmLmXBamRpEBU_0V4PgJZXdHTvNnNoZgccsNw" />
               </IconButton>
             </Tooltip>
             <Menu
