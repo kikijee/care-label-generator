@@ -10,17 +10,19 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction){
-  const token = req.cookies?.token;
+export async function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextFunction){
+  const token = await req.cookies?.care_label_app_token;
 
   if (!token) {
-      return res.status(401).json({ error: "Null token" });
+      res.status(401).send({ error: "Null token" });
+      return;
   }
 
-  Jwt.verify(token, process.env.JWT_SECRET as string, (error: Jwt.VerifyErrors | null, user: JwtPayload | string | undefined) => {
+  Jwt.verify(token, process.env.SECRET_KEY as string, (error: Jwt.VerifyErrors | null, user: JwtPayload | string | undefined) => {
       if (error) {
           console.error("JWT Verification Error:", error.message);
-          return res.status(403).json({ error: error.message });
+          res.status(403).send({ error: error.message });
+          return;
       }
 
       if (user) {
@@ -33,7 +35,8 @@ export function authenticateToken(req: AuthenticatedRequest, res: Response, next
 export const requireRole = (role : string) => {
     return (req: Request, res: Response, next: NextFunction) => {
       if(role !== req.body.User.Role){
-        return res.status(403).json({ error: "Invalid Role Permissions" });
+        res.status(403).send({ error: "Invalid Role Permissions" });
+        return;
       }
       next();
     }

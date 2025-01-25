@@ -29,7 +29,7 @@ export const login = async (req: Request, res: Response) => {
             Role: user.Role
         }
         const token = Jwt.sign(payload,process.env.SECRET_KEY as string,{expiresIn:'1h'});
-        res.cookie('token', token, { 
+        res.cookie('care_label_app_token', token, { 
             httpOnly: true, 
             sameSite: 'lax', 
             maxAge: 60 * 60 * 1000,  // 1 hour expiration
@@ -42,5 +42,14 @@ export const login = async (req: Request, res: Response) => {
         })
     } catch (error: any) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: error.message });
+    }
+}
+
+export const logout =(req: Request, res: Response)=>{   // this function is to delete the token in client side cookie
+    try {
+        res.clearCookie('care_label_app_token');
+        res.status(StatusCodes.OK).send({message:"logged out"})
+    } catch (error: any) {
+        res.status(StatusCodes.UNAUTHORIZED).send({error:error.message});
     }
 }

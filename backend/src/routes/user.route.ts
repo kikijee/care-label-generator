@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import {create_user,delete_user, get_users, get_user_by_id} from "../controllers/user.controller"
 import { validateData } from "../middleware/validation.middleware";
 import { userCreationSchema } from "../schemas/user.schema";
+import { authenticateToken } from "../middleware/jwt.middleware";
 
 export default ()=>{
 
@@ -11,7 +12,7 @@ export default ()=>{
     router.post('/', validateData(userCreationSchema), create_user);
     
     // gets all users and returns list (GET -> database retrieval)
-    router.get('/', get_users);
+    router.get('/', authenticateToken, get_users);
     
     // gets user with id (GET -> database retrieval)
     router.get('/:id', get_user_by_id);

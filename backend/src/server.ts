@@ -4,6 +4,7 @@ import cors from "cors";
 import { db } from "./models";
 import handleUserRoutes from "./routes/user.route";
 import handleAuthRoutes from "./routes/auth.route";
+import cookieParser = require("cookie-parser");
 
 
 dotenv.config();
@@ -15,6 +16,7 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 db.sequelize.sync({ force: true}).then(()=>{
   console.log("synced db");
