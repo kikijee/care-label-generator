@@ -3,12 +3,14 @@ import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme/theme';
 import NavBar from "./components/NavBar";
 import ConnectFooter from "./components/ConnectFooter";
+import { CareLabelDataProvider } from './context/CareEditorContext';
 
  export default function RootLayout(props: any) {
    const { children } = props;
    return (
      <html lang="en">
       <body>
+        <CareLabelDataProvider>
           <AppRouterCacheProvider>
            <ThemeProvider theme={theme}>
               <NavBar/>
@@ -16,6 +18,7 @@ import ConnectFooter from "./components/ConnectFooter";
               <ConnectFooter/>
            </ThemeProvider>
           </AppRouterCacheProvider>
+          </CareLabelDataProvider>
        </body>
      </html>
    );
