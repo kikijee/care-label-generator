@@ -47,7 +47,8 @@ export const FiberContent = () => {
                         display: 'flex',
                         justifyContent: "center",
                         gap: 5,
-                        p: 4
+                        p: {xl:4,lg:4,md:4,sm:0,xs:0},
+                        pt:{sm:2,xs:2}
                     }}
                 >
                     <TextField

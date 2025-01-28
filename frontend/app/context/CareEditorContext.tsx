@@ -11,6 +11,10 @@ interface PendingDataContextType {
     y:number;
     seamGap:number;
     zoom:number;
+    fontSize:number;
+    rnNumber:string;
+    address:string;
+    website:string;
 }
 
 export const PendingDataContext = createContext<PendingDataContextType | null>(null);
@@ -24,6 +28,10 @@ interface PendingDataDispatchType {
     setY: React.Dispatch<React.SetStateAction<number>>;
     setSeamGap: React.Dispatch<React.SetStateAction<number>>;
     setZoom: React.Dispatch<React.SetStateAction<number>>;
+    setFontSize: React.Dispatch<React.SetStateAction<number>>;
+    setRnNumber: React.Dispatch<React.SetStateAction<string>>;
+    setAddress: React.Dispatch<React.SetStateAction<string>>;
+    setWebsite: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const PendingDataDispatchContext = createContext<PendingDataDispatchType | null>(null);
@@ -37,6 +45,10 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [y,setY] = useState<number>(2.36);
     const [seamGap, setSeamGap] = useState<number>(0.25);
     const [zoom, setZoom] = useState<number>(1);
+    const [fontSize, setFontSize] = useState<number>(6);
+    const [rnNumber, setRnNumber] = useState<string>("");
+    const [address, setAddress] = useState<string>("");
+    const [website, setWebsite] = useState<string>("");
 
     const dispatch = {
         setSelectedLanguages,
@@ -46,7 +58,11 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         setX,
         setY,
         setSeamGap,
-        setZoom
+        setZoom,
+        setFontSize,
+        setRnNumber,
+        setAddress,
+        setWebsite
     };
 
     const pendingData = {
@@ -57,7 +73,11 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         x,
         y,
         seamGap,
-        zoom
+        zoom,
+        fontSize,
+        rnNumber,
+        address,
+        website
     };
 
     return (

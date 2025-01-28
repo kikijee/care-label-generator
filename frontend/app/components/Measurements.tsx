@@ -19,6 +19,10 @@ export const Measurements =()=>{
         dispatch?.setY(value)
     }
 
+    const handleFontChange =(value:any)=>{
+        dispatch?.setFontSize(value)
+    }
+
     return(
         <>
         <Box
@@ -94,6 +98,41 @@ export const Measurements =()=>{
                 slotProps={{
                     input: {
                       endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                    },
+                  }}
+            />
+        </Box>
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                pt: 5
+            }}
+        >
+            <Typography>
+                FONT SIZE
+            </Typography>
+        </Box>
+
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: "center",
+                gap: 5,
+                p: 4
+            }}
+        >
+            <TextField
+                helperText="seam allowence"
+                type="number"
+                value={pendingData?.fontSize}
+                onChange={(e) => { handleFontChange(e.target.value) }}
+                sx={{
+                    width: '250px'
+                }}
+                slotProps={{
+                    input: {
+                      endAdornment: <InputAdornment position="end">pt</InputAdornment>,
                     },
                   }}
             />
