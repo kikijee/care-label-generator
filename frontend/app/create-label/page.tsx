@@ -1,5 +1,5 @@
 'use client'
-import { Box, Typography, CssBaseline, Container, TextField, MenuItem, Button, Checkbox, IconButton } from "@mui/material"
+import { Box, Typography, CssBaseline, Container, TextField, MenuItem, Button, Checkbox, IconButton, Slider, Tooltip } from "@mui/material"
 import { materials, percentages, careInstructions, languages, coo } from "@/public/data/data"
 import { useState } from "react"
 import FormGroup from '@mui/material/FormGroup';
@@ -21,6 +21,10 @@ const Page = () => {
 
     const handleScreenChange = () => {
         setFullscreen(!fullscreen);
+    }
+
+    const handleZoomChange =(event: Event, newValue: number | number[])=>{
+        dispatch?.setZoom(newValue as number)
     }
 
     
@@ -113,8 +117,8 @@ const Page = () => {
                                     </Typography>
                                     <Box
                                         sx={{
-                                            width: 200,
-                                            height: 350,
+                                            width: (pendingData?.x*96 | 113.28)*((pendingData.zoom)*0.01+1),
+                                            height: (pendingData?.y*96 | 226.56)*((pendingData.zoom)*0.01+1),
                                             bgcolor: 'white',
                                             paddingTop: 3
                                         }}
@@ -205,7 +209,22 @@ const Page = () => {
                         }
                     </IconButton>
                 </Box>
+
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        bottom: 16,  // Distance from bottom
+                        right: 100,   // Distance from right
+                        zIndex: 1000, // Ensures it stays above other content
+                        width:150,
+                        bgcolor:'#000'
+                    }}
+                >
+                    <Slider value={pendingData?.zoom}  aria-label="Default" valueLabelDisplay="auto" onChange={handleZoomChange}/>
+                </Box>
             </Box>
+
+            
     )
 }
 

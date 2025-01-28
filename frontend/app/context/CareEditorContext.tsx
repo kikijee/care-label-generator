@@ -7,6 +7,10 @@ interface PendingDataContextType {
     fiberContent: { material: number; percentage: string }[];
     careInstructionsList: number[];
     cooIndex: number;
+    x:number;
+    y:number;
+    seamGap:number;
+    zoom:number;
 }
 
 export const PendingDataContext = createContext<PendingDataContextType | null>(null);
@@ -16,6 +20,10 @@ interface PendingDataDispatchType {
     setFiberContent: React.Dispatch<React.SetStateAction<{ material: number; percentage: string }[]>>;
     setCareInstructionsList: React.Dispatch<React.SetStateAction<number[]>>;
     setCooIndex: React.Dispatch<React.SetStateAction<number>>;
+    setX: React.Dispatch<React.SetStateAction<number>>;
+    setY: React.Dispatch<React.SetStateAction<number>>;
+    setSeamGap: React.Dispatch<React.SetStateAction<number>>;
+    setZoom: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const PendingDataDispatchContext = createContext<PendingDataDispatchType | null>(null);
@@ -25,19 +33,31 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [fiberContent, setFiberContent] = useState([{ material: 0, percentage: "Select" }]);
     const [careInstructionsList, setCareInstructionsList] = useState<number[]>([0]);
     const [cooIndex, setCooIndex] = useState<number>(0);
+    const [x,setX] = useState<number>(1.18);
+    const [y,setY] = useState<number>(2.36);
+    const [seamGap, setSeamGap] = useState<number>(0.25);
+    const [zoom, setZoom] = useState<number>(1);
 
     const dispatch = {
         setSelectedLanguages,
         setFiberContent,
         setCareInstructionsList,
-        setCooIndex
+        setCooIndex,
+        setX,
+        setY,
+        setSeamGap,
+        setZoom
     };
 
     const pendingData = {
         selectedLanguages,
         fiberContent,
         careInstructionsList,
-        cooIndex
+        cooIndex,
+        x,
+        y,
+        seamGap,
+        zoom
     };
 
     return (

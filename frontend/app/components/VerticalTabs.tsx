@@ -27,7 +27,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ paddingLeft:5 }}>
+        <Box sx={{ paddingLeft: 5 }}>
           {children}
         </Box>
       )}
@@ -51,54 +51,54 @@ export default function VerticalTabs() {
 
   return (
     <Box
-  sx={{ 
-    flexGrow: 1, 
-    display: 'flex', 
-    minHeight: '100vh' ,
-    paddingTop:5
-    
-  }}
->
-  <Tabs
-    orientation="vertical"
-    variant="scrollable"
-    value={value}
-    onChange={handleChange}
-    sx={{ 
-      borderRight: 1, 
-      borderColor: 'divider',
-      width: '180px', 
-      flexShrink: 0,
-    }}
-  >
-    <Tab label="Measurements" {...a11yProps(0)} />
-    <Tab label="Country of Orgin" {...a11yProps(1)} />
-    <Tab label="Fiber Content" {...a11yProps(2)} />
-    <Tab label="Care Instructions" {...a11yProps(3)} />
-    <Tab label="Additional info" {...a11yProps(4)} />
-    <Tab label="Languages" {...a11yProps(5)} />
-  </Tabs>
-  <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-    <TabPanel value={value} index={0}>
-      <Measurements />
-    </TabPanel>
-    <TabPanel value={value} index={1}>
-      <CountryOfOrigin />
-    </TabPanel>
-    <TabPanel value={value} index={2}>
-      <FiberContent />
-    </TabPanel>
-    <TabPanel value={value} index={3}>
-      <CareInstructions />
-    </TabPanel>
-    <TabPanel value={value} index={4}>
-      <AdditionalInfo />
-    </TabPanel>
-    <TabPanel value={value} index={5}>
-      <Languages />
-    </TabPanel>
-  </Box>
-</Box>
+      sx={{
+        flexGrow: 1,
+        display: 'flex',
+        minHeight: '100vh',
+        paddingTop: 3
+
+      }}
+    >
+      <Tabs
+        orientation="vertical"
+        variant="scrollable"
+        value={value}
+        onChange={handleChange}
+        sx={{
+          borderRight: 1,
+          borderColor: 'divider',
+          width: '180px',
+          flexShrink: 0,
+        }}
+      >
+        <Tab label="Measurements" {...a11yProps(0)} />
+        <Tab label="Country of Orgin" {...a11yProps(1)} />
+        <Tab label="Fiber Content" {...a11yProps(2)} />
+        <Tab label="Care Instructions" {...a11yProps(3)} />
+        <Tab label="Additional info" {...a11yProps(4)} />
+        <Tab label="Languages" {...a11yProps(5)} />
+      </Tabs>
+      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+        <TabPanel value={value} index={0}>
+          <Measurements />
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <CountryOfOrigin />
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <FiberContent />
+        </TabPanel>
+        <TabPanel value={value} index={3}>
+          <CareInstructions />
+        </TabPanel>
+        <TabPanel value={value} index={4}>
+          <AdditionalInfo />
+        </TabPanel>
+        <TabPanel value={value} index={5}>
+          <Languages />
+        </TabPanel>
+      </Box>
+    </Box>
 
   );
 }
