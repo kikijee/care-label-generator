@@ -23,10 +23,12 @@ export const login = async (req: Request, res: Response) => {
         const payload = {
             UserID: user.UserID,
             Email: user.Email,
-            FirstName: user.FirstName,
-            LastName: user.LastName,
-            DateOfBirth: user.DateOfBirth,
-            Role: user.Role
+            Name: user.Name,
+            Role: user.Role,
+            Website: user.Website,
+            RnNumber: user.RnNumber,
+            Address: user.Address
+
         }
         const token = Jwt.sign(payload,process.env.SECRET_KEY as string,{expiresIn:'1h'});
         res.cookie('care_label_app_token', token, { 

@@ -12,12 +12,14 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
-import { GoogleIcon } from '../components/CustomIcons';
+import { signUpUser } from '../api-service/user';
+//import { GoogleIcon } from '../components/CustomIcons';
 //import { signUpUser, signInUser, LoginSignUpGoogle } from '../apiService';
 import Notification from '../components/Notification';
 //import { useNavigate } from 'react-router-dom';
 //import { AuthDispatchContext } from '../context/AuthContext';
 //import { useGoogleLogin } from '@react-oauth/google';
+import { useRouter } from 'next/navigation'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -41,15 +43,29 @@ const Card = styled(MuiCard)(({ theme }) => ({
 export default function SignUp() {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+
+  // const [websiteError, setWebsiteError] = React.useState(false);
+  // const [websiteErrorMessage, setWebsiteErrorMessage] = React.useState('');
+
+  // const [companyError, setCompanyError] = React.useState(false);
+  // const [companyErrorMessage, setCompanyErrorMessage] = React.useState('');
+
+  // const [rnError, setRnError] = React.useState(false);
+  // const [rnErrorMessage, setRnErrorMessage] = React.useState('');
+
   const [notification, setNotification] = React.useState(false);
-  const [notificationStatus] = React.useState(false);
-  const [notificationMessage] = React.useState("");
+  const [notificationStatus,setNotificationStatus] = React.useState(false);
+  const [notificationMessage,setNotificationMessage] = React.useState("");
 
   const [signUpDisabled] = React.useState(false);
+
+  const router = useRouter()
 
 
   const validateInputs = () => {
@@ -89,47 +105,35 @@ export default function SignUp() {
     return isValid;
   };
 
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-//     const form = event.currentTarget;
-//     const data = new FormData(event.currentTarget);
-//     const response = await signUpUser({
-//       name: data.get('name'),
-//       email: data.get('email'),
-//       password: data.get('password'),
-//     });
-//     if (response.status === 200) {
-//       console.log("account creation success!", response.data)
-//       form.reset();
-//       // setNotificationStatus(true)
-//       // setNotification(true)
-//       // setNotificationMessage("Account successfully created")
-//       // navigate('/signIn')
-
-//       const res = await signInUser({
-//         email: data.get('email'),
-//         password: data.get('password'),
-//       });
-
-//       if (res.status === 200) {
-//         console.log("sign in success!", res.data)
-//         sessionStorage.setItem('user', JSON.stringify(res.data))  // save basic user data in session storage for easy access
-//         authDispatch({ type: 'change', payload: res.data })           // setting context provider use state
-//         navigate('/')
-//       }
-//       else {
-//         console.error("error during sign in", res)
-//       }
-
-
-//     }
-//     else {
-//       console.error("error in account creation", response.response)
-//       setNotificationStatus(false)
-//       setNotification(true)
-//       setNotificationMessage(response.response.data.detail)
-//     }
-//   };
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(event.currentTarget);
+    const response = await signUpUser({
+      Email: data.get('email'),
+      Name: data.get('name'),
+      Password: data.get('password'),
+      Website: data.get('website') !== "" ? data.get('website') : null,
+      RnNumber: data.get('rn-number') !== "" ? data.get('rn-number') : null,
+      CompanyAddress: data.get('address') !== "" ? data.get('address') : null,
+      Role: "User"
+    });
+    console.log(response)
+    if (response.status === 201) {
+      console.log("account creation success!", response.data)
+      form.reset();
+      setNotificationStatus(true)
+      setNotification(true)
+      setNotificationMessage("Account successfully created")
+      //router.push('/sign-in')
+    }
+    else {
+      console.error("error in account creation", response.response)
+      setNotificationStatus(false)
+      setNotification(true)
+      setNotificationMessage(response.response.data.detail)
+    }
+  };
 
   const handleCloseNotification = () => {
     setNotification(false)
@@ -205,7 +209,7 @@ export default function SignUp() {
           }
           <Box
             component="form"
-            // onSubmit={handleSubmit}
+            onSubmit={handleSubmit}
             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
             <FormControl>
@@ -256,6 +260,42 @@ export default function SignUp() {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="website">Company Website {"(optional)"}</FormLabel>
+              <TextField
+                disabled={signUpDisabled}
+                autoComplete="website"
+                name="website"
+                //required
+                fullWidth
+                id="website"
+                placeholder="your website"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="rn-number">Company RN number {"(optional)"}</FormLabel>
+              <TextField
+                disabled={signUpDisabled}
+                autoComplete="rn-number"
+                name="website"
+                //required
+                fullWidth
+                id="rn-number"
+                placeholder="your RN number"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="address">Company Address {"(optional)"}</FormLabel>
+              <TextField
+                disabled={signUpDisabled}
+                autoComplete="address"
+                name="address"
+                //required
+                fullWidth
+                id="address"
+                placeholder="your address"
+              />
+            </FormControl>
             {/* <FormControlLabel
                   control={<Checkbox value="allowExtraEmails" color="primary" />}
                   label="I want to receive updates via email."
@@ -290,31 +330,6 @@ export default function SignUp() {
               </span>
             </Typography>
           </Box>
-
-          <Divider>
-            <Typography sx={{ color: 'text.secondary' }}>or</Typography>
-          </Divider>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Button
-              disabled={signUpDisabled}
-              type="submit"
-              fullWidth
-              variant="outlined"
-            //   onClick={() => googleLogin()}
-              startIcon={<GoogleIcon />}
-              sx={{
-                borderColor: '#2a2d96', // Change this to your preferred outline color
-                color: 'white',       // Optional: Match text color with the outline color
-                '&:hover': {
-                  borderColor: '#2a2d96',  // Change this for the hover state
-                },
-              }}
-            >
-              Sign up with Google
-            </Button>
-          </Box>
-
         </Card>
       </Stack>
 

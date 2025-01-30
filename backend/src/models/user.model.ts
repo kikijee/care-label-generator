@@ -4,11 +4,12 @@ import { Sequelize, Model, DataTypes } from "sequelize";
 interface UserAttributes {
     UserID?: number;
     Email: string;
-    FirstName: string;
-    LastName: string;
-    DateOfBirth: string;
+    Name: string;
     Password: string;
     Role: "Admin" | "User";
+    Website: string | null;
+    RnNumber: string | null;
+    Address: string | null;
 }
 
 // Define User model instance type
@@ -28,16 +29,8 @@ export const define_user = (sequelize: Sequelize) => {
                 unique: true,
                 allowNull: false,
             },
-            FirstName: {
+            Name: {
                 type: DataTypes.STRING(255),
-                allowNull: false,
-            },
-            LastName: {
-                type: DataTypes.STRING(255),
-                allowNull: false,
-            },
-            DateOfBirth: {
-                type: DataTypes.DATEONLY,
                 allowNull: false,
             },
             Password: {
@@ -50,6 +43,18 @@ export const define_user = (sequelize: Sequelize) => {
                 validate: {
                     isIn: [["Admin", "User"]],
                 },
+            },
+            Website: {
+                type: DataTypes.STRING(255),
+                allowNull: true,
+            },
+            RnNumber: {
+                type: DataTypes.STRING(255),
+                allowNull: true,
+            },
+            Address: {
+                type: DataTypes.STRING(255),
+                allowNull: true,
             },
         },
         { timestamps: true }

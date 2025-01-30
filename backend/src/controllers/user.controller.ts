@@ -15,11 +15,12 @@ export const create_user = async (req: Request, res: Response) => {
         // user creation in database
         const user = await db.users.create({
             Email: req.body.Email,
-            FirstName: req.body.FirstName,
-            LastName: req.body.LastName,
-            DateOfBirth: req.body.DateOfBirth,
+            Name: req.body.Name,
             Password: hashedPassword,
-            Role: req.body.Role
+            Role: req.body.Role,
+            Website: req.body.Website? req.body.Website : null,
+            RnNumber: req.body.RnNumber? req.body.RnNumber : null,
+            Address: req.body.Address? req.body.Address : null
         }, {transaction});
 
         await transaction.commit();
