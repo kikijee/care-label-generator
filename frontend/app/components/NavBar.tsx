@@ -13,13 +13,58 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import { logout } from '../api-service/auth';
+import { useRouter } from 'next/navigation'
+import { useAuthData, useAuthDispatch } from '../context/AuthContext';
 
-const pages = [['create label','/create-label'],['login','/sign-in'],['sign up','/sign-up']];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages_user = [['create label', '/create-label']];
+const pages_non_user = [['login', '/sign-in'], ['sign up', '/sign-up']];
+const settings = [
+  {
+    name: 'Profile',
+    action: () => { return; }
+  },
+  {
+    name: 'Account',
+    action: () => { return; }
+  },
+  {
+    name: 'Dashboard',
+    action: () => { return; }
+  },
+  {
+    name: 'Logout',
+    action: async () => {
+      const response = await logout();
+      console.log(response);
+      sessionStorage.removeItem("care-label-user");
+    }
+  }
+];
 
 function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+  const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean | null>(null);
+  const [pages, setPages] = React.useState<[string, string][]>([]);
+
+  const authData = useAuthData()
+  const setAuthData = useAuthDispatch();
+
+  React.useEffect(() => {
+    // if (typeof window !== "undefined") {
+    //   setIsUserLoggedIn(sessionStorage.getItem('care-label-user') !== null);
+    // }
+    if(authData.user){
+      setPages([['create label', '/create-label']])
+    }
+    else{
+      setPages([['login', '/sign-in'], ['sign up', '/sign-up']])
+    }
+  }, [authData])
+
+  const router = useRouter();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -37,7 +82,7 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="fixed" sx={{background: "linear-gradient(90deg, #000 30%, #444444 100%)"}}>
+    <AppBar position="fixed" sx={{ background: "linear-gradient(90deg, #000 30%, #444444 100%)" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <ReceiptLongIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -86,7 +131,13 @@ function NavBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
+              {authData.user && pages_user.map((page) => (
+                <MenuItem component='a' key={page[0]} onClick={handleCloseNavMenu} href={page[1]}>
+                  <Typography sx={{ textAlign: 'center' }}>{page[0]}</Typography>
+                </MenuItem>
+              ))}
+
+              {!authData.user && pages_non_user.map((page) => (
                 <MenuItem component='a' key={page[0]} onClick={handleCloseNavMenu} href={page[1]}>
                   <Typography sx={{ textAlign: 'center' }}>{page[0]}</Typography>
                 </MenuItem>
@@ -113,7 +164,18 @@ function NavBar() {
             EZ-LABEL
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+            {authData.user && pages_user.map((page) => (
+              <Button
+                key={page[0]}
+                onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+                href={page[1]}
+              >
+                {page[0]}
+              </Button>
+            ))}
+
+            {!authData.user && pages_non_user.map((page) => (
               <Button
                 key={page[0]}
                 onClick={handleCloseNavMenu}
@@ -124,6 +186,7 @@ function NavBar() {
               </Button>
             ))}
           </Box>
+          { authData.user &&
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -146,13 +209,24 @@ function NavBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+              {settings.map((setting, i) => (
+                <MenuItem
+                  key={i}
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    setting.action();
+                    if (setting.name === 'Logout') {
+                      setAuthData({ user: null });
+                      router.push('/')
+                    }
+                  }}
+                >
+                  <Typography sx={{ textAlign: 'center' }}>{setting.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+          }
         </Toolbar>
       </Container>
     </AppBar>

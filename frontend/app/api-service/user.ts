@@ -16,7 +16,7 @@ export async function signUpUser(body: any) {
         const response = await userAxios.post('/api/user',body);
         return response;
     } catch (error: any) {
-        console.error("Error during student sign up:", error);
+        console.error("Error during sign up:", error);
         return error.response;
     }
 }

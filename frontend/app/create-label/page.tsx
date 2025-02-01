@@ -11,6 +11,7 @@ import jsPDF from "jspdf";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import SecureRoute from "../secureRoute/SecureRoute";
 
 
 const Page = () => {
@@ -145,75 +146,41 @@ const Page = () => {
 
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                minHeight: "100vh",
-                flexDirection: {
-                    xl: 'row',
-                    lg: 'row',
-                    md: 'column',
-                    sm: 'column',
-                    xs: 'column'
-                },
-                gap: 5,
-                pt: { xl: 8, lg: 8, md: 8, sm: 7, xs: 7 }
-            }}
-        >
-            <CssBaseline />
-            {!fullscreen &&
-                <Container
-                    sx={{
-                        bgcolor: "#212121",
-                        minHeight: '100vh',
-                        width: {
-                            xl: '70%',
-                            lg: '70%',
-                            md: '100%',
-                            sm: '100%',
-                            xs: '100%'
-                        }
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            padding: 3,
-                        }}
-                    >
-                        <Typography
-                            sx={{
-                                fontSize: 20
-                            }}
-                        >
-                            CARE LABEL OPTIONS
-                        </Typography>
-                    </Box>
-                    <VerticalTabs />
-
-
-
-
-
-
-                </Container>
-            }
-            {
-                pendingData?.selectedLanguages.length !== 0 ?
+        <SecureRoute>
+            <Box
+                sx={{
+                    display: "flex",
+                    minHeight: "100vh",
+                    flexDirection: {
+                        xl: 'row',
+                        lg: 'row',
+                        md: 'column',
+                        sm: 'column',
+                        xs: 'column'
+                    },
+                    gap: 5,
+                    pt: { xl: 8, lg: 8, md: 8, sm: 7, xs: 7 }
+                }}
+            >
+                <CssBaseline />
+                {!fullscreen &&
                     <Container
                         sx={{
+                            bgcolor: "#212121",
                             minHeight: '100vh',
-                            display: 'flex',
-                            alignContent: !fullscreen ? 'flex-start' : '',
-                            justifyContent: fullscreen ? 'center' : '',
-                            flexWrap: "wrap",
-                            gap: 2,
-                            padding: 4,
+                            width: {
+                                xl: '70%',
+                                lg: '100%',
+                                md: '100%',
+                                sm: '100%',
+                                xs: '100%'
+                            }
                         }}
                     >
                         <Box
                             sx={{
-                                width: '100%'
+                                display: "flex",
+                                padding: 3,
                             }}
                         >
                             <Typography
@@ -221,12 +188,23 @@ const Page = () => {
                                     fontSize: 20
                                 }}
                             >
-                                LABEL VIEW
+                                CARE LABEL OPTIONS
                             </Typography>
                         </Box>
-                        <Box
-                            id="label-container"
+                        <VerticalTabs />
+
+
+
+
+
+
+                    </Container>
+                }
+                {
+                    pendingData?.selectedLanguages.length !== 0 ?
+                        <Container
                             sx={{
+                                minHeight: '100vh',
                                 display: 'flex',
                                 alignContent: !fullscreen ? 'flex-start' : '',
                                 justifyContent: fullscreen ? 'center' : '',
@@ -235,63 +213,87 @@ const Page = () => {
                                 padding: 4,
                             }}
                         >
-                            {pendingData?.selectedLanguages.map((data: string, i) => (
-                                <Box key={i}>
-                                    <Typography>
-                                        {data}
-                                    </Typography>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            width: (pendingData?.x * 96 || 113.28) * ((pendingData.zoom) * 0.01 + 1),
-                                            height: (pendingData?.y * 96 || 226.56) * ((pendingData.zoom) * 0.01 + 1),
-                                            bgcolor: 'white',
-                                            paddingTop: `${(pendingData?.seamGap * 96) * ((pendingData.zoom) * 0.01 + 1)}px`,
-                                        }}
-                                    >
-                                        <Box>
-                                            {pendingData?.cooIndex !== 0 &&
-                                                <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
-                                                    {coo[data.toLowerCase().replace(' ', '_') as keyof typeof materials][pendingData?.cooIndex]}
-                                                </Typography>
-                                            }
-                                            {pendingData?.fiberContent.map((fiber, index) => (
-                                                fiber.material !== 0 && fiber.percentage !== 'Select' &&
-                                                <Typography key={index} sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
-                                                    {fiber.percentage} {materials[data.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}
-                                                </Typography>
-                                            ))}
-                                            {pendingData?.careInstructionsList.map((care, index) => (
-                                                care !== 0 &&
-                                                <Typography key={index} sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
-                                                    {careInstructions[data.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}
-                                                </Typography>
-                                            ))}
-                                        </Box>
-                                        <Box sx={{ marginTop: 'auto' }}> {/* Ensures bottom alignment */}
-                                            {pendingData?.rnNumber !== "" &&
-                                                <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
-                                                    {`RN ${pendingData?.rnNumber}`}
-                                                </Typography>
-                                            }
-                                            {pendingData?.address !== "" &&
-                                                <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
-                                                    {pendingData?.address}
-                                                </Typography>
-                                            }
-                                            {pendingData?.website !== "" &&
-                                                <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
-                                                    {pendingData?.website}
-                                                </Typography>
-                                            }
+                            <Box
+                                sx={{
+                                    width: '100%'
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: 20
+                                    }}
+                                >
+                                    LABEL VIEW
+                                </Typography>
+                            </Box>
+                            <Box
+                                id="label-container"
+                                sx={{
+                                    display: 'flex',
+                                    alignContent: !fullscreen ? 'flex-start' : '',
+                                    justifyContent: fullscreen ? 'center' : '',
+                                    flexWrap: "wrap",
+                                    gap: 2,
+                                    padding: 4,
+                                }}
+                            >
+                                {pendingData?.selectedLanguages.map((data: string, i) => (
+                                    <Box key={i}>
+                                        <Typography>
+                                            {data}
+                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                width: (pendingData?.x * 96 || 113.28) * ((pendingData.zoom) * 0.01 + 1),
+                                                height: (pendingData?.y * 96 || 226.56) * ((pendingData.zoom) * 0.01 + 1),
+                                                bgcolor: 'white',
+                                                paddingTop: `${(pendingData?.seamGap * 96) * ((pendingData.zoom) * 0.01 + 1)}px`,
+                                            }}
+                                        >
+                                            <Box>
+                                                {pendingData?.cooIndex !== 0 &&
+                                                    <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
+                                                        {coo[data.toLowerCase().replace(' ', '_') as keyof typeof materials][pendingData?.cooIndex]}
+                                                    </Typography>
+                                                }
+                                                {pendingData?.fiberContent.map((fiber, index) => (
+                                                    fiber.material !== 0 && fiber.percentage !== 'Select' &&
+                                                    <Typography key={index} sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
+                                                        {fiber.percentage} {materials[data.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}
+                                                    </Typography>
+                                                ))}
+                                                {pendingData?.careInstructionsList.map((care, index) => (
+                                                    care !== 0 &&
+                                                    <Typography key={index} sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
+                                                        {careInstructions[data.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}
+                                                    </Typography>
+                                                ))}
+                                            </Box>
+                                            <Box sx={{ marginTop: 'auto' }}> {/* Ensures bottom alignment */}
+                                                {pendingData?.rnNumber !== "" &&
+                                                    <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
+                                                        {`RN ${pendingData?.rnNumber}`}
+                                                    </Typography>
+                                                }
+                                                {pendingData?.address !== "" &&
+                                                    <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
+                                                        {pendingData?.address}
+                                                    </Typography>
+                                                }
+                                                {pendingData?.website !== "" &&
+                                                    <Typography sx={{ color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1) }}>
+                                                        {pendingData?.website}
+                                                    </Typography>
+                                                }
+                                            </Box>
                                         </Box>
                                     </Box>
-                                </Box>
-                            ))}
+                                ))}
 
-                        </Box>
-                        {/* <Draggable nodeRef={myRef}>
+                            </Box>
+                            {/* <Draggable nodeRef={myRef}>
                     <div 
                         ref={myRef} 
                         style={{ 
@@ -310,66 +312,67 @@ const Page = () => {
                         </Box>
                     </div>
                 </Draggable> */}
-                    </Container>
-                    :
-                    <Container
-                        sx={{
-                            minHeight: '100vh',
-                            display: 'flex',
-                            alignContent: 'center',
-                            justifyContent: 'center',
-                            flexWrap: "wrap",
-                            gap: 2,
-                            padding: 4,
-                        }}
-                    >
-                        <Typography
+                        </Container>
+                        :
+                        <Container
                             sx={{
-                                fontSize: 30,
-                                opacity: 0.3
+                                minHeight: '100vh',
+                                display: 'flex',
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                flexWrap: "wrap",
+                                gap: 2,
+                                padding: 4,
                             }}
                         >
-                            Select Language Options
-                        </Typography>
-                    </Container>
-            }
+                            <Typography
+                                sx={{
+                                    fontSize: 30,
+                                    opacity: 0.3
+                                }}
+                            >
+                                Select Language Options
+                            </Typography>
+                        </Container>
+                }
 
-            <SpeedDial
-                sx={{
-                    position: 'fixed',
-                    bottom: 16,
-                    right: 16,
-                    zIndex: 1000
-                }}
-                ariaLabel="SpeedDial actions"
-                icon={<SpeedDialIcon />}
-                open={open}
-                onOpen={() => setOpen(true)}
-                onClose={() => setOpen(false)}
-            >
-                <SpeedDialAction
-                    icon={<FullscreenIcon />}
-                    tooltipTitle="Fullscreen"
-                    onClick={handleScreenChange}
-                />
-                <SpeedDialAction
-                    icon={<DownloadIcon />}
-                    tooltipTitle="Download PDF"
-                    onClick={handleDownloadPDF}
-                />
-                <SpeedDialAction
-                    icon={<ZoomInIcon />}
-                    tooltipTitle="Zoom In"
-                    onClick={() => handleZoomChange(pendingData ? pendingData?.zoom + 10 : 0)}
-                />
-                <SpeedDialAction
-                    icon={<ZoomOutIcon />}
-                    tooltipTitle="Zoom Out"
-                    onClick={() => handleZoomChange(pendingData ? pendingData?.zoom - 10 : 0)}
-                />
-            </SpeedDial>
+                <SpeedDial
+                    sx={{
+                        position: 'fixed',
+                        bottom: 16,
+                        right: 16,
+                        zIndex: 1000
+                    }}
+                    ariaLabel="SpeedDial actions"
+                    icon={<SpeedDialIcon />}
+                    open={open}
+                    onOpen={() => setOpen(true)}
+                    onClose={() => setOpen(false)}
+                >
+                    <SpeedDialAction
+                        icon={<FullscreenIcon />}
+                        tooltipTitle="Fullscreen"
+                        onClick={handleScreenChange}
+                    />
+                    <SpeedDialAction
+                        icon={<DownloadIcon />}
+                        tooltipTitle="Download PDF"
+                        onClick={handleDownloadPDF}
+                    />
+                    <SpeedDialAction
+                        icon={<ZoomInIcon />}
+                        tooltipTitle="Zoom In"
+                        onClick={() => handleZoomChange(pendingData ? pendingData?.zoom + 10 : 0)}
+                    />
+                    <SpeedDialAction
+                        icon={<ZoomOutIcon />}
+                        tooltipTitle="Zoom Out"
+                        onClick={() => handleZoomChange(pendingData ? pendingData?.zoom - 10 : 0)}
+                    />
+                </SpeedDial>
 
-        </Box>
+            </Box>
+        </SecureRoute>
 
 
     )

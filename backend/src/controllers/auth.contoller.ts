@@ -52,6 +52,10 @@ export const logout =(req: Request, res: Response)=>{   // this function is to d
         res.clearCookie('care_label_app_token');
         res.status(StatusCodes.OK).send({message:"logged out"})
     } catch (error: any) {
-        res.status(StatusCodes.UNAUTHORIZED).send({error:error.message});
+        res.status(StatusCodes.UNAUTHORIZED).send({message:error.message});
     }
+}
+
+export const verify =(req: Request, res: Response)=>{
+    res.status(StatusCodes.OK).send({message: "successfully verified"})
 }

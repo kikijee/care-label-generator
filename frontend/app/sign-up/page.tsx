@@ -128,10 +128,10 @@ export default function SignUp() {
       //router.push('/sign-in')
     }
     else {
-      console.error("error in account creation", response.response)
+      console.error("error in account creation", response.data.message)
       setNotificationStatus(false)
       setNotification(true)
-      setNotificationMessage(response.response.data.detail)
+      setNotificationMessage(response.data.message)
     }
   };
 
@@ -171,7 +171,7 @@ export default function SignUp() {
         sx={{
           justifyContent: 'center',
           alignContent:'center',
-          height: '100dvh',
+          minHeight: '100vh',
           mt: {
             xl:4,
             lg:10,

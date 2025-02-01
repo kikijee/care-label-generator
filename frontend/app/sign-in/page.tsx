@@ -13,8 +13,13 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
-import { GoogleIcon } from '../components/CustomIcons';
+//import { GoogleIcon } from '../components/CustomIcons';
 import Notification from '../components/Notification';
+import { useRouter } from 'next/navigation'
+import { signInUser } from '../api-service/auth';
+import { useAuthDispatch } from '../context/AuthContext';
+
+
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -40,10 +45,14 @@ export default function SignIn() {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError] = React.useState(false);
   const [notification, setNotification] = React.useState(false);
-  const [notificationStatus] = React.useState(false);
-  const [notificationMessage] = React.useState("");
+  const [notificationStatus, setNotificationStatus] = React.useState(false);
+  const [notificationMessage, setNotificationMessage] = React.useState("");
 
-  const [signUpDisabled] = React.useState(false);
+  const setAuthData = useAuthDispatch()
+
+  //const [signUpDisabled] = React.useState(false);
+  const router = useRouter()
+
 
 
   const validateInputs = () => {
@@ -68,32 +77,32 @@ export default function SignIn() {
     setNotification(false);
   }
 
-  // const handleOpenNotification = () =>{
-  //   setNotification(true);
-  // }  
+  const handleOpenNotification = () =>{
+    setNotification(true);
+  }  
 
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-//     const data = new FormData(event.currentTarget);
-//     const response = await signInUser({
-//       email: data.get('email'),
-//       password: data.get('password'),
-//     });
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const response = await signInUser({
+      Email: data.get('email'),
+      Password: data.get('password'),
+    });
     
-//     if (response.status === 200){
-//       console.log("sign in success!",response.data)
-//       sessionStorage.setItem('user',JSON.stringify(response.data))  // save basic user data in session storage for easy access
-//       authDispatch({type:'change',payload:response.data})           // setting context provider use state
-//       console.log(JSON.parse(sessionStorage.getItem('user')))
-//       navigate('/')
-//     }
-//     else{
-//       console.error("error during sign in",response)
-//       setNotificationMessage(response.response.data.detail)
-//       setNotificationStatus(false)
-//       handleOpenNotification()
-//     }
-//   };
+    if (response.status === 200){
+      console.log("sign in success!",response.data)
+      sessionStorage.setItem('care-label-user',JSON.stringify(response.data))  // save basic user data in session storage for easy access
+      setAuthData({user:true})
+      console.log(JSON.parse(sessionStorage.getItem('care-label-user') as string))
+      router.push('/')
+    }
+    else{
+      console.error("error during sign in",response)
+      setNotificationMessage(response.response.data.detail)
+      setNotificationStatus(false)
+      handleOpenNotification()
+    }
+  };
 
 //   const googleLogin = useGoogleLogin({
 //     onSuccess: async(codeResponse) => {
@@ -147,7 +156,7 @@ export default function SignIn() {
               </Typography>
               <Box
                 component="form"
-                // onSubmit={handleSubmit}
+                onSubmit={handleSubmit}
                 sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
               >
                 <FormControl>
@@ -207,29 +216,8 @@ export default function SignIn() {
                   </span>
                 </Typography>
               </Box>
-              <Divider>
-                <Typography sx={{ color: 'text.secondary' }}>or</Typography>
-              </Divider>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Button
-                  disabled={signUpDisabled}
-                  type="submit"
-                  fullWidth
-                  variant="outlined"
-                //   onClick={() => googleLogin()}
-                  startIcon={<GoogleIcon />}
-                  sx={{
-                    borderColor: '#2a2d96', // Change this to your preferred outline color
-                    color: 'white',       // Optional: Match text color with the outline color
-                    '&:hover': {
-                      borderColor: '#2a2d96',  // Change this for the hover state
-                    },
-                  }}
-                >
-                  Sign in with Google
-                </Button>
-              </Box>
+              
               
             </Card>
           </Stack>
