@@ -17,7 +17,7 @@ import { logout } from '../api-service/auth';
 import { useRouter } from 'next/navigation'
 import { useAuthData, useAuthDispatch } from '../context/AuthContext';
 
-const pages_user = [['create label', '/create-label']];
+const pages_user = [['create label', '/create-label'],['dashboard', '/dashboard']];
 const pages_non_user = [['login', '/sign-in'], ['sign up', '/sign-up']];
 const settings = [
   {
@@ -46,23 +46,28 @@ function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
-  const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean | null>(null);
-  const [pages, setPages] = React.useState<[string, string][]>([]);
+  // const [isUserLoggedIn, setIsUserLoggedIn] = React.useState<boolean | null>(null);
+  // const [pages, setPages] = React.useState<[string, string][]>([]);
 
   const authData = useAuthData()
   const setAuthData = useAuthDispatch();
 
-  React.useEffect(() => {
-    // if (typeof window !== "undefined") {
-    //   setIsUserLoggedIn(sessionStorage.getItem('care-label-user') !== null);
-    // }
-    if(authData.user){
-      setPages([['create label', '/create-label']])
-    }
-    else{
-      setPages([['login', '/sign-in'], ['sign up', '/sign-up']])
-    }
-  }, [authData])
+  // React.useEffect(() => {
+
+  //   if (typeof window !== "undefined") {
+  //     setIsUserLoggedIn(sessionStorage.getItem('care-label-user') !== null);
+  //   }
+
+  //   if(authData.user){
+  //     setPages([['create label', '/create-label']])
+  //   }
+  //   else if (authData.user === null){
+  //     setPages([])
+  //   }
+  //   else{
+  //     setPages([['login', '/sign-in'], ['sign up', '/sign-up']])
+  //   }
+  // }, [authData])
 
   const router = useRouter();
 
@@ -137,7 +142,7 @@ function NavBar() {
                 </MenuItem>
               ))}
 
-              {!authData.user && pages_non_user.map((page) => (
+              {!authData.user && authData.user !== null && pages_non_user.map((page) => (
                 <MenuItem component='a' key={page[0]} onClick={handleCloseNavMenu} href={page[1]}>
                   <Typography sx={{ textAlign: 'center' }}>{page[0]}</Typography>
                 </MenuItem>
@@ -175,7 +180,7 @@ function NavBar() {
               </Button>
             ))}
 
-            {!authData.user && pages_non_user.map((page) => (
+            {!authData.user && authData.user !== null && pages_non_user.map((page) => (
               <Button
                 key={page[0]}
                 onClick={handleCloseNavMenu}
@@ -216,7 +221,7 @@ function NavBar() {
                     handleCloseUserMenu();
                     setting.action();
                     if (setting.name === 'Logout') {
-                      setAuthData({ user: null });
+                      setAuthData({ user: false });
                       router.push('/')
                     }
                   }}

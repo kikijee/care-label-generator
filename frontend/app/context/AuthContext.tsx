@@ -1,6 +1,7 @@
 "use client"
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+
 interface AuthData {
     user: boolean | null; // Change `any` to a specific type if you have a user model
 }

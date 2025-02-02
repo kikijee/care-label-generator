@@ -2,7 +2,9 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { verify } from '../api-service/auth';
-import { Box } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
+import { useAuthDispatch } from '../context/AuthContext';
+
 
 interface SecureRouteProps {
     children: ReactNode;
@@ -12,6 +14,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({ children }) => {
     const [verified, setVerified] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const router = useRouter();
+    const setAuthData = useAuthDispatch();
 
     useEffect(() => {
         const getVerification = async () => {
@@ -20,6 +23,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({ children }) => {
                 setVerified(true);
             } else {
                 sessionStorage.removeItem('care-label-user');
+                setAuthData({ user: false });
                 router.push('/sign-in'); // Move redirection inside useEffect
             }
             setLoading(false);
@@ -38,6 +42,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({ children }) => {
                     justifyContent:'center'
                 }}
             >
+                <CssBaseline/>
                 Loading...
             </Box>
         );
@@ -53,6 +58,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({ children }) => {
                     justifyContent:'center'
                 }}
             >
+                <CssBaseline/>
                 Redirecting...
             </Box>
         ); // Prevent rendering until redirection happens
