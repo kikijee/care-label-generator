@@ -1,6 +1,6 @@
 'use client'
 import { Box, CssBaseline, Typography, IconButton, Divider, TextField, Card, CardContent } from "@mui/material"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -9,26 +9,36 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Grid from '@mui/material/Grid2';
 import SecureRoute from "../secureRoute/SecureRoute";
 
-const savedSets = [
+const tempSets = [
     {
-        title: "title 1",
-        date: "2001-01-01"
+        title: "title d",
+        date: "2005-01-01",
+        starred: false
     },
     {
-        title: "title 2",
-        date: "2001-01-02"
+        title: "title b",
+        date: "2010-01-02",
+        starred: false
     },
     {
-        title: "title 3",
-        date: "2001-01-03"
+        title: "title c",
+        date: "2002-01-03",
+        starred: false
     },
     {
-        title: "title 4",
-        date: "2001-01-04"
+        title: "title z",
+        date: "2021-01-04",
+        starred: false
     },
     {
-        title: "title 5",
-        date: "2001-01-05"
+        title: "title l",
+        date: "2000-01-05",
+        starred: false
+    },
+    {
+        title: "title p",
+        date: "1999-01-06",
+        starred: true
     }
 ]
 
@@ -38,6 +48,49 @@ const dashboard = () => {
     const [alphaOption, setAlphaOption] = useState<boolean>(true);
     const [dateOption, setDateOption] = useState<boolean>(false);
     const [order, setOrder] = useState<boolean>(false);
+    const [savedSets, setSavedSets] = useState<{ title: string; date: string; starred: boolean }[]>([]);
+    const [stars, setStars] = useState<boolean[]>([]);
+    //const [sortedSets, setSortedSets] = useState<{ title: string; date: string; starred: boolean }[]>([]);
+
+    useEffect(() => {
+        setSavedSets(tempSets); // axios call here
+        // const tempSorted = [...tempSets]
+        //     .sort((a, b) => {
+        //         if (alphaOption) {
+        //             return order
+        //                 ? b.title.localeCompare(a.title) // Descending
+        //                 : a.title.localeCompare(b.title); // Ascending
+        //         }
+        //         if (dateOption) {
+        //             return order
+        //                 ? new Date(b.date).getTime() - new Date(a.date).getTime() // Descending
+        //                 : new Date(a.date).getTime() - new Date(b.date).getTime(); // Ascending
+        //         }
+        //         return 0;
+        //     });
+        // setSortedSets(tempSorted);
+        // setStars(tempSorted.map(set => set.starred));
+    }, [])
+
+    const sortedSets = [...savedSets]
+        //.map((set, index) => ({ ...set, starred: stars[index] })) // Attach star status
+        .sort((a, b) => {
+            // if (starred) {
+            //     if (a.starred !== b.starred) return b.starred ? 1 : -1;
+            // }
+            if (alphaOption) {
+                return order
+                    ? b.title.localeCompare(a.title) // Descending
+                    : a.title.localeCompare(b.title); // Ascending
+            }
+            if (dateOption) {
+                return order
+                    ? new Date(b.date).getTime() - new Date(a.date).getTime() // Descending
+                    : new Date(a.date).getTime() - new Date(b.date).getTime(); // Ascending
+            }
+            return 0;
+        });
+
 
     const handleStarredChange = () => {
         setStarred(!starred);
@@ -58,6 +111,38 @@ const dashboard = () => {
     const handleOrderChange = () => {
         setOrder(!order);
     }
+
+    const handleStarsChange = (index: number) => {
+        const newStars = [...stars];
+        newStars[index] = !stars[index];
+        setStars(newStars);
+    }
+
+    // const sortAlpha = () => {
+    //     if(alphaOption){
+    //         const tempSorted = [...savedSets]
+    //         .sort((a,b) =>{
+    //             return order
+    //                 ? b.title.localeCompare(a.title) // Descending
+    //                 : a.title.localeCompare(b.title); // Ascending
+    //         });
+    //         setSortedSets(tempSorted);
+    //     }
+    // }
+
+    // const sortDate = () => {
+    //     if(dateOption){
+    //         const tempSorted = [...savedSets]
+    //         .sort((a,b) =>{
+    //             return order
+    //             ? new Date(b.date).getTime() - new Date(a.date).getTime() // Descending
+    //             : new Date(a.date).getTime() - new Date(b.date).getTime(); // Ascending
+    //         });
+    //         setSortedSets(tempSorted);
+    //     }
+    // }
+
+
 
     return (
         <SecureRoute>
@@ -107,11 +192,11 @@ const dashboard = () => {
                             />
                         </IconButton>
 
-                        <IconButton
+                        {/* <IconButton
                             onClick={handleStarredChange}
                         >
                             {starred ? <StarIcon sx={{ color: '#ffff00' }} /> : <StarBorderIcon />}
-                        </IconButton>
+                        </IconButton> */}
 
                         <IconButton
                             onClick={handleOrderChange}
@@ -131,24 +216,24 @@ const dashboard = () => {
                 <Box
                     sx={{
                         display: 'flex',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        width:'50%',
+                        flexWrap:'wrap',
+                        columnGap:2,
+                        rowGap:2,
+                        mt:3
                     }}
                 >
-                    <Grid container spacing={3} sx={{ marginTop: 5, width: '80%' }}>
                         {
-                            savedSets.map((data, index) => (
-                                <Grid
-                                    key={index}
-                                    size={{
-                                        xs: 12, sm: 12, md: 5, lg: 4, xl: 4
-                                    }}
-                                >
+                            sortedSets.map((data, index) => (
                                     <Card
                                         sx={{
                                             transition: 'transform 0.3s ease-in-out', // Smooth transition
                                             '&:hover': {
                                                 transform: 'scale(1.1)', // Slightly expand the card
                                             },
+                                            height:150,
+                                            width:150
                                         }}
                                     >
                                         <CardContent>
@@ -159,7 +244,7 @@ const dashboard = () => {
                                                 {data.date}
                                             </Typography>
                                         </CardContent>
-                                        <Box
+                                        {/* <Box
                                             sx={{
                                                 display: 'flex',
                                                 justifyContent: 'flex-end',
@@ -167,21 +252,14 @@ const dashboard = () => {
                                                 marginTop: 'auto'  // Push the icon to the bottom of the card content
                                             }}
                                         >
-                                            {/* <IconButton
-                                            onClick={() =>
-                                                handleCheck(index)
-                                            }>
-                                            {checked[index] ? (
-                                                <CheckCircleIcon color="success" sx={{ fontSize: 30 }} />  // Filled checkmark if checked
-                                            ) : (
-                                                <CheckCircleOutlineIcon sx={{ fontSize: 30 }} />  // Outlined checkmark if not checked
-                                            )}
-                                        </IconButton> */}
-                                        </Box>
+                                            <IconButton
+                                                onClick={() => { handleStarsChange(index) }}
+                                            >
+                                                {stars[index] ? <StarIcon sx={{ color: '#ffff00' }} /> : <StarBorderIcon />}
+                                            </IconButton>
+                                        </Box> */}
                                     </Card>
-                                </Grid>
                             ))}
-                    </Grid>
                 </Box>
 
             </Box>
