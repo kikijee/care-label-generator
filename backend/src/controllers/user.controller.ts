@@ -17,7 +17,7 @@ export const create_user = async (req: Request, res: Response) => {
             Email: req.body.Email,
             Name: req.body.Name,
             Password: hashedPassword,
-            Role: req.body.Role,
+            Role: "User",
             Website: req.body.Website? req.body.Website : null,
             RnNumber: req.body.RnNumber? req.body.RnNumber : null,
             Address: req.body.Address? req.body.Address : null

@@ -1,10 +1,14 @@
 import {Sequelize, Dialect} from "sequelize";
 import dotenv from "dotenv";
 import { db_config } from "../config/db.config";
-import { define_record } from "./record.model";
-import { define_user } from "./user.model"
+import { define_label } from "./label.model";
+import { define_user } from "./user.model";
+import { MongoClient } from 'mongodb';
 
 dotenv.config();
+
+const uri = process.env.MONGODB_URI as string;
+const mongo_client = new MongoClient(uri);
 
 const sequelize = new Sequelize(db_config.DB as string, db_config.USER as string, db_config.PASSWORD as string, {
   host: db_config.HOST as string,
@@ -21,16 +25,16 @@ export const db = {
   Sequelize: Sequelize,
   sequelize: sequelize,
   users: define_user(sequelize),
-  records: define_record(sequelize),
+  labels: define_label(sequelize)
 };
 
 // DB Relationships
-db.users.hasMany(db.records,{
+db.users.hasMany(db.labels,{
   foreignKey: 'UserID',
   onDelete: 'CASCADE'
 })
 
-db.records.belongsTo(db.users,{
+db.labels.belongsTo(db.users,{
   foreignKey: 'UserID'
 })
 

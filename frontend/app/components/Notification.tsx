@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
@@ -17,7 +16,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props,
 
 const Notification: React.FC<NotificationProps> = ({ message, status, close }) => {
   return (
-    <Stack spacing={2} sx={{ width: '100%' }}>
+    <div style={{ position: "fixed", zIndex: 1300 }}> {/* Ensures it stays above other elements */}
       {status === true && (
         <Snackbar open={true} autoHideDuration={6000} onClose={close}>
           <Alert onClose={close} severity="success" sx={{ width: '100%' }}>
@@ -32,7 +31,7 @@ const Notification: React.FC<NotificationProps> = ({ message, status, close }) =
           </Alert>
         </Snackbar>
       )}
-    </Stack>
+    </div>
   );
 };
 

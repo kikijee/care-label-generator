@@ -10,6 +10,8 @@ interface UserAttributes {
     Website: string | null;
     RnNumber: string | null;
     Address: string | null;
+    createdAt?: Date; 
+    updatedAt?: Date;
 }
 
 // Define User model instance type

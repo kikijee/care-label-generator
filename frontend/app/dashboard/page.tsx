@@ -8,39 +8,34 @@ import StarIcon from '@mui/icons-material/Star';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Grid from '@mui/material/Grid2';
 import SecureRoute from "../secureRoute/SecureRoute";
+import { get_labels_by_user_id } from "../api-service/label";
+import { useRouter } from 'next/navigation';
 
-const tempSets = [
-    {
-        title: "title d",
-        date: "2005-01-01",
-        starred: false
-    },
-    {
-        title: "title b",
-        date: "2010-01-02",
-        starred: false
-    },
-    {
-        title: "title c",
-        date: "2002-01-03",
-        starred: false
-    },
-    {
-        title: "title z",
-        date: "2021-01-04",
-        starred: false
-    },
-    {
-        title: "title l",
-        date: "2000-01-05",
-        starred: false
-    },
-    {
-        title: "title p",
-        date: "1999-01-06",
-        starred: true
-    }
-]
+type Measurements = {
+    SeamGap: number;
+    Width: number;
+    Height: number;
+    FontSize: number;
+  };
+  
+  type AdditionalInfo = {
+    RnNumber: string;
+    Address: string;
+    Website: string;
+  };
+  
+  type LabelData = {
+    LabelID: number;
+    createdAt: string;
+    updatedAt: string;
+    _id: string;
+    Title: string;
+    Measurements: Measurements;
+    FiberContent: number[];
+    CareLabel: number[];
+    AdditionalInfo: AdditionalInfo;
+    Languages: string[];
+  };
 
 const dashboard = () => {
 
@@ -48,28 +43,22 @@ const dashboard = () => {
     const [alphaOption, setAlphaOption] = useState<boolean>(true);
     const [dateOption, setDateOption] = useState<boolean>(false);
     const [order, setOrder] = useState<boolean>(false);
-    const [savedSets, setSavedSets] = useState<{ title: string; date: string; starred: boolean }[]>([]);
+    const [savedSets, setSavedSets] = useState<LabelData[]>([]);
     const [stars, setStars] = useState<boolean[]>([]);
-    //const [sortedSets, setSortedSets] = useState<{ title: string; date: string; starred: boolean }[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
-        setSavedSets(tempSets); // axios call here
-        // const tempSorted = [...tempSets]
-        //     .sort((a, b) => {
-        //         if (alphaOption) {
-        //             return order
-        //                 ? b.title.localeCompare(a.title) // Descending
-        //                 : a.title.localeCompare(b.title); // Ascending
-        //         }
-        //         if (dateOption) {
-        //             return order
-        //                 ? new Date(b.date).getTime() - new Date(a.date).getTime() // Descending
-        //                 : new Date(a.date).getTime() - new Date(b.date).getTime(); // Ascending
-        //         }
-        //         return 0;
-        //     });
-        // setSortedSets(tempSorted);
-        // setStars(tempSorted.map(set => set.starred));
+        const fetchData =async()=>{
+            const response = await get_labels_by_user_id()
+            console.log(response)
+            if(response.status === 200){
+                setSavedSets(response.data);
+            }
+            else{
+                //handle error
+            }
+        }
+        fetchData();
     }, [])
 
     const sortedSets = [...savedSets]
@@ -80,21 +69,21 @@ const dashboard = () => {
             // }
             if (alphaOption) {
                 return order
-                    ? b.title.localeCompare(a.title) // Descending
-                    : a.title.localeCompare(b.title); // Ascending
+                    ? b.Title.localeCompare(a.Title) // Descending
+                    : a.Title.localeCompare(b.Title); // Ascending
             }
             if (dateOption) {
                 return order
-                    ? new Date(b.date).getTime() - new Date(a.date).getTime() // Descending
-                    : new Date(a.date).getTime() - new Date(b.date).getTime(); // Ascending
+                    ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() // Descending
+                    : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(); // Ascending
             }
             return 0;
         });
 
 
-    const handleStarredChange = () => {
-        setStarred(!starred);
-    }
+    // const handleStarredChange = () => {
+    //     setStarred(!starred);
+    // }
 
     const handleAlphaOptionChange = () => {
         if (alphaOption) return;
@@ -112,11 +101,11 @@ const dashboard = () => {
         setOrder(!order);
     }
 
-    const handleStarsChange = (index: number) => {
-        const newStars = [...stars];
-        newStars[index] = !stars[index];
-        setStars(newStars);
-    }
+    // const handleStarsChange = (index: number) => {
+    //     const newStars = [...stars];
+    //     newStars[index] = !stars[index];
+    //     setStars(newStars);
+    // }
 
     // const sortAlpha = () => {
     //     if(alphaOption){
@@ -227,21 +216,24 @@ const dashboard = () => {
                         {
                             sortedSets.map((data, index) => (
                                     <Card
+                                        key={index}
+                                        onClick={()=>router.push(`/dashboard/label/${data.LabelID}`)}
                                         sx={{
                                             transition: 'transform 0.3s ease-in-out', // Smooth transition
                                             '&:hover': {
                                                 transform: 'scale(1.1)', // Slightly expand the card
+                                                cursor:"pointer"
                                             },
                                             height:150,
-                                            width:150
+                                            width:150,
                                         }}
                                     >
                                         <CardContent>
                                             <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: { xs: 14, sm: 16 } }}>
-                                                {data.title}
+                                                {data.Title}
                                             </Typography>
                                             <Typography variant="body2" sx={{ fontSize: { xs: 14, sm: 16 } }}>
-                                                {data.date}
+                                                {new Date(data.createdAt).toISOString().split("T")[0]}
                                             </Typography>
                                         </CardContent>
                                         {/* <Box

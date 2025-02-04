@@ -1,38 +1,99 @@
 'use client'
 import { Box, Typography, CssBaseline, Container, SpeedDial, SpeedDialAction } from "@mui/material"
 import { materials, careInstructions, coo } from "@/public/data/data"
-import { useState } from "react"
+import { useState, useEffect, use } from "react"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
-import VerticalTabs from "../components/VerticalTabs";
-import { usePendingData, usePendingDataDispatch } from "../context/CareEditorContext"
+import VerticalTabs from "@/app/components/VerticalTabs";
+import { usePendingData, usePendingDataDispatch } from "@/app/context/CareEditorContext";
 import DownloadIcon from '@mui/icons-material/Download';
 import jsPDF from "jspdf";
 //import html2canvas from "html2canvas";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import SecureRoute from "../secureRoute/SecureRoute";
+import SecureRoute from "@/app/secureRoute/SecureRoute";
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { save_label } from "../api-service/label";
-import LabelSaveDialog from "../components/LabelSaveDialog";
-import Notification from "../components/Notification";
+import { save_label } from "@/app/api-service/label";
+import LabelSaveDialog from "@/app/components/LabelSaveDialog";
+import Notification from "@/app/components/Notification";
+import { get_label_by_id } from "@/app/api-service/label";
 
 
-const Page = () => {
+const Page = ({ params }: { params: Promise<{ id: number }> }) => {
+
+    const resolvedParams = use(params); // Unwrap the params promise
+    const { id } = resolvedParams;
 
     const pendingData = usePendingData();
     const dispatch = usePendingDataDispatch();
     const [fullscreen, setFullscreen] = useState(false);
     const [open, setOpen] = useState(false);
     const [openSaveDialog, setOpenSaveDialog] = useState(false);
+    const [title, setTitle] = useState("")
 
     const [notification, setNotification] = useState(false);
-    const [notificationStatus,setNotificationStatus] = useState(false);
-    const [notificationMessage,setNotificationMessage] = useState("");
+    const [notificationStatus, setNotificationStatus] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState("");
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await get_label_by_id(id);
+            if (response.status === 200) {
+                setTitle(response.data.Title);
+                dispatch?.setSeamGap(response.data.Measurements.SeamGap);
+                dispatch?.setX(response.data.Measurements.Width);
+                dispatch?.setY(response.data.Measurements.Height);
+                dispatch?.setFontSize(response.data.Measurements.FontSize);
+                dispatch?.setFiberContent(response.data.FiberContent);
+                dispatch?.setCareInstructionsList(response.data.CareLabel);
+                dispatch?.setRnNumber(response.data.AdditionalInfo.RnNumber);
+                dispatch?.setAddress(response.data.AdditionalInfo.Address);
+                dispatch?.setWebsite(response.data.AdditionalInfo.Website);
+                dispatch?.setSelectedLanguages(response.data.Languages);
+                dispatch?.setCooIndex(response.data.CountryOfOrigin);
+                setLoading(false);
+                console.log(response.data)
+            }
+            else {
+                return (
+                    <Box
+                        sx={{
+                            minHeight: '100vh',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <CssBaseline />
+                        Server Error
+                    </Box>
+                )
+            }
+        }
+        fetchData();
+    }, [])
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                <CssBaseline />
+                Loading...
+            </Box>
+        );
+    }
 
     const handleCloseNotification = () => {
         setNotification(false)
-      }
+    }
 
     const handleScreenChange = () => {
         setFullscreen(!fullscreen);
@@ -43,11 +104,11 @@ const Page = () => {
         dispatch?.setZoom(newValue);
     }
 
-    const handleLabelSave =async(title: string)=>{
+    const handleLabelSave = async (title: string) => {
         const body = {
-            label_data:{
-                Title:title,
-                Measurements:{
+            label_data: {
+                Title: title,
+                Measurements: {
                     SeamGap: pendingData?.seamGap,
                     Width: pendingData?.x,
                     Height: pendingData?.y,
@@ -56,7 +117,7 @@ const Page = () => {
                 CountryOfOrigin:pendingData?.cooIndex,
                 FiberContent: pendingData?.fiberContent,
                 CareLabel: pendingData?.careInstructionsList,
-                AdditionalInfo:{
+                AdditionalInfo: {
                     RnNumber: pendingData?.rnNumber,
                     Address: pendingData?.address,
                     Website: pendingData?.website
@@ -65,13 +126,13 @@ const Page = () => {
             }
         };
         const response = await save_label(body);
-        if(response.status === 201){
+        if (response.status === 201) {
             setNotificationStatus(true)
             setNotification(true)
             setNotificationMessage("Save Success");
             console.log(response.data);
         }
-        else{
+        else {
             setNotificationStatus(false)
             setNotification(true)
             setNotificationMessage("Save Failure");
@@ -235,7 +296,7 @@ const Page = () => {
                                     fontSize: 20
                                 }}
                             >
-                                CARE LABEL OPTIONS
+                                CARE LABEL OPTIONS {` LABEL: ${title}`}
                             </Typography>
                         </Box>
                         <VerticalTabs />
@@ -419,12 +480,12 @@ const Page = () => {
                     <SpeedDialAction
                         icon={<BookmarkIcon />}
                         tooltipTitle="Save Label"
-                        onClick={()=>setOpenSaveDialog(true)}
+                        onClick={() => setOpenSaveDialog(true)}
                     />
                 </SpeedDial>
-                <LabelSaveDialog open={openSaveDialog} setOpen={setOpenSaveDialog} saveLabel={handleLabelSave}/>
+                <LabelSaveDialog open={openSaveDialog} setOpen={setOpenSaveDialog} saveLabel={handleLabelSave} />
                 {notification &&
-                  <Notification message={notificationMessage} status={notificationStatus} close={handleCloseNotification} />
+                    <Notification message={notificationMessage} status={notificationStatus} close={handleCloseNotification} />
                 }
             </Box>
         </SecureRoute>

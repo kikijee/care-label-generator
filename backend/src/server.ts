@@ -4,6 +4,7 @@ import cors from "cors";
 import { db } from "./models";
 import handleUserRoutes from "./routes/user.route";
 import handleAuthRoutes from "./routes/auth.route";
+import handleLabelRoutes from "./routes/label.route";
 import cookieParser = require("cookie-parser");
 
 
@@ -26,6 +27,7 @@ db.sequelize.sync({ force: false}).then(()=>{
 
 app.use('/api/user', handleUserRoutes());
 app.use('/api/auth', handleAuthRoutes());
+app.use('/api/label', handleLabelRoutes());
 
 
 app.use((req: Request, res: Response, next: NextFunction) => {
