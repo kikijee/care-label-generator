@@ -3,7 +3,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
+//import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
@@ -19,7 +19,7 @@ import Notification from '../components/Notification';
 //import { useNavigate } from 'react-router-dom';
 //import { AuthDispatchContext } from '../context/AuthContext';
 //import { useGoogleLogin } from '@react-oauth/google';
-import { useRouter } from 'next/navigation'
+//import { useRouter } from 'next/navigation'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -65,7 +65,7 @@ export default function SignUp() {
 
   const [signUpDisabled] = React.useState(false);
 
-  const router = useRouter()
+  //const router = useRouter()
 
 
   const validateInputs = () => {

@@ -3,10 +3,10 @@ import { Box, CssBaseline, Typography, IconButton, Divider, TextField, Card, Car
 import { useState, useEffect } from "react";
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
-import StarIcon from '@mui/icons-material/Star';
+//import StarBorderIcon from '@mui/icons-material/StarBorder';
+//import StarIcon from '@mui/icons-material/Star';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import Grid from '@mui/material/Grid2';
+//import Grid from '@mui/material/Grid2';
 import SecureRoute from "../secureRoute/SecureRoute";
 import { get_labels_by_user_id } from "../api-service/label";
 import { useRouter } from 'next/navigation';
@@ -37,14 +37,14 @@ type Measurements = {
     Languages: string[];
   };
 
-const dashboard = () => {
+const Dashboard = () => {
 
-    const [starred, setStarred] = useState<boolean>(false);
+    //const [starred, setStarred] = useState<boolean>(false);
     const [alphaOption, setAlphaOption] = useState<boolean>(true);
     const [dateOption, setDateOption] = useState<boolean>(false);
     const [order, setOrder] = useState<boolean>(false);
     const [savedSets, setSavedSets] = useState<LabelData[]>([]);
-    const [stars, setStars] = useState<boolean[]>([]);
+    //const [stars, setStars] = useState<boolean[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -259,4 +259,4 @@ const dashboard = () => {
     )
 }
 
-export default dashboard
+export default Dashboard

@@ -1,6 +1,45 @@
 services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: testdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Mount PostgreSQL data directory to persist data
+
+  mongodb:
+    image: mongo:4.4.18
+    container_name: mongodb_container_care_label
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: bigballs001
+    volumes:
+      - mongodb_data:/data/db
+
+  server:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      db: 
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend
     ports:
       - "3000:3000"
+
+volumes:
+  mongodb_data:
+  postgres_data:  # Define a named volume for PostgreSQL
