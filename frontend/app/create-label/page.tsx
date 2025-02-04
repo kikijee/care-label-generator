@@ -27,12 +27,12 @@ const Page = () => {
     const [openSaveDialog, setOpenSaveDialog] = useState(false);
 
     const [notification, setNotification] = useState(false);
-    const [notificationStatus,setNotificationStatus] = useState(false);
-    const [notificationMessage,setNotificationMessage] = useState("");
+    const [notificationStatus, setNotificationStatus] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState("");
 
     const handleCloseNotification = () => {
         setNotification(false)
-      }
+    }
 
     const handleScreenChange = () => {
         setFullscreen(!fullscreen);
@@ -43,20 +43,20 @@ const Page = () => {
         dispatch?.setZoom(newValue);
     }
 
-    const handleLabelSave =async(title: string)=>{
+    const handleLabelSave = async (title: string) => {
         const body = {
-            label_data:{
-                Title:title,
-                Measurements:{
+            label_data: {
+                Title: title,
+                Measurements: {
                     SeamGap: pendingData?.seamGap,
                     Width: pendingData?.x,
                     Height: pendingData?.y,
                     FontSize: pendingData?.fontSize
                 },
-                CountryOfOrigin:pendingData?.cooIndex,
+                CountryOfOrigin: pendingData?.cooIndex,
                 FiberContent: pendingData?.fiberContent,
                 CareLabel: pendingData?.careInstructionsList,
-                AdditionalInfo:{
+                AdditionalInfo: {
                     RnNumber: pendingData?.rnNumber,
                     Address: pendingData?.address,
                     Website: pendingData?.website
@@ -65,13 +65,13 @@ const Page = () => {
             }
         };
         const response = await save_label(body);
-        if(response.status === 201){
+        if (response.status === 201) {
             setNotificationStatus(true)
             setNotification(true)
             setNotificationMessage("Save Success");
             console.log(response.data);
         }
-        else{
+        else {
             setNotificationStatus(false)
             setNotification(true)
             setNotificationMessage("Save Failure");
@@ -419,12 +419,12 @@ const Page = () => {
                     <SpeedDialAction
                         icon={<BookmarkIcon />}
                         tooltipTitle="Save Label"
-                        onClick={()=>setOpenSaveDialog(true)}
+                        onClick={() => setOpenSaveDialog(true)}
                     />
                 </SpeedDial>
-                <LabelSaveDialog open={openSaveDialog} setOpen={setOpenSaveDialog} saveLabel={handleLabelSave}/>
+                <LabelSaveDialog open={openSaveDialog} setOpen={setOpenSaveDialog} saveLabel={handleLabelSave} />
                 {notification &&
-                  <Notification message={notificationMessage} status={notificationStatus} close={handleCloseNotification} />
+                    <Notification message={notificationMessage} status={notificationStatus} close={handleCloseNotification} />
                 }
             </Box>
         </SecureRoute>

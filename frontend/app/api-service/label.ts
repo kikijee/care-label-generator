@@ -40,3 +40,13 @@ export async function get_label_by_id(id: number) {
         return error.response;
     }
 }
+
+export async function delete_label(id: number) {
+    try {
+        const response = await labelAxios.delete(`/api/label/${id}`);
+        return response;
+    } catch (error: any) {
+        console.error("Error during label deletion:", error);
+        return error.response;
+    }
+}

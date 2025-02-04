@@ -10,21 +10,24 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SecureRoute from "../secureRoute/SecureRoute";
 import { get_labels_by_user_id } from "../api-service/label";
 import { useRouter } from 'next/navigation';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { delete_label } from "../api-service/label";
+import Notification from "../components/Notification";
 
 type Measurements = {
     SeamGap: number;
     Width: number;
     Height: number;
     FontSize: number;
-  };
-  
-  type AdditionalInfo = {
+};
+
+type AdditionalInfo = {
     RnNumber: string;
     Address: string;
     Website: string;
-  };
-  
-  type LabelData = {
+};
+
+type LabelData = {
     LabelID: number;
     createdAt: string;
     updatedAt: string;
@@ -35,7 +38,7 @@ type Measurements = {
     CareLabel: number[];
     AdditionalInfo: AdditionalInfo;
     Languages: string[];
-  };
+};
 
 const Dashboard = () => {
 
@@ -47,14 +50,18 @@ const Dashboard = () => {
     //const [stars, setStars] = useState<boolean[]>([]);
     const router = useRouter();
 
+    const [notification, setNotification] = useState(false);
+    const [notificationStatus,setNotificationStatus] = useState(false);
+    const [notificationMessage,setNotificationMessage] = useState("");
+
     useEffect(() => {
-        const fetchData =async()=>{
+        const fetchData = async () => {
             const response = await get_labels_by_user_id()
             console.log(response)
-            if(response.status === 200){
+            if (response.status === 200) {
                 setSavedSets(response.data);
             }
-            else{
+            else {
                 //handle error
             }
         }
@@ -84,6 +91,25 @@ const Dashboard = () => {
     // const handleStarredChange = () => {
     //     setStarred(!starred);
     // }
+    const handleCloseNotification = () => {
+        setNotification(false)
+    }
+
+    const handleLabelDelete = async (id: number) => {
+        const response = await delete_label(id);
+        if(response.status === 200){
+            const updatedLabels = savedSets.filter((data) => data.LabelID !== id);
+            setSavedSets(updatedLabels)
+            setNotificationStatus(true);
+            setNotification(true);
+            setNotificationMessage("delete success");
+        }
+        else{
+            setNotificationStatus(false);
+            setNotification(true);
+            setNotificationMessage("delete failure");
+        }
+    }
 
     const handleAlphaOptionChange = () => {
         if (alphaOption) return;
@@ -206,55 +232,57 @@ const Dashboard = () => {
                     sx={{
                         display: 'flex',
                         justifyContent: 'center',
-                        width:'50%',
-                        flexWrap:'wrap',
-                        columnGap:2,
-                        rowGap:2,
-                        mt:3
+                        width: '50%',
+                        flexWrap: 'wrap',
+                        columnGap: 2,
+                        rowGap: 2,
+                        mt: 3
                     }}
                 >
-                        {
-                            sortedSets.map((data, index) => (
-                                    <Card
-                                        key={index}
-                                        onClick={()=>router.push(`/dashboard/label/${data.LabelID}`)}
-                                        sx={{
-                                            transition: 'transform 0.3s ease-in-out', // Smooth transition
-                                            '&:hover': {
-                                                transform: 'scale(1.1)', // Slightly expand the card
-                                                cursor:"pointer"
-                                            },
-                                            height:150,
-                                            width:150,
-                                        }}
+                    {
+                        sortedSets.map((data, index) => (
+                            <Card
+                                key={index}
+                                onClick={() => router.push(`/dashboard/label/${data.LabelID}`)}
+                                sx={{
+                                    transition: 'transform 0.3s ease-in-out', // Smooth transition
+                                    '&:hover': {
+                                        transform: 'scale(1.1)', // Slightly expand the card
+                                        cursor: "pointer"
+                                    },
+                                    height: 175,
+                                    width: 175,
+                                }}
+                            >
+                                <CardContent>
+                                    <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: { xs: 14, sm: 16 } }}>
+                                        {data.Title}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontSize: { xs: 14, sm: 16 } }}>
+                                        {new Date(data.createdAt).toISOString().split("T")[0]}
+                                    </Typography>
+                                    <Box
+                                        sx={{ position: 'absolute', bottom: 5, left: 5 }}
                                     >
-                                        <CardContent>
-                                            <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: { xs: 14, sm: 16 } }}>
-                                                {data.Title}
-                                            </Typography>
-                                            <Typography variant="body2" sx={{ fontSize: { xs: 14, sm: 16 } }}>
-                                                {new Date(data.createdAt).toISOString().split("T")[0]}
-                                            </Typography>
-                                        </CardContent>
-                                        {/* <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                alignItems: 'center',
-                                                marginTop: 'auto'  // Push the icon to the bottom of the card content
+                                        <IconButton
+                                            onClick={(e: any) => { 
+                                                e.stopPropagation() 
+                                                handleLabelDelete(data.LabelID);
                                             }}
                                         >
-                                            <IconButton
-                                                onClick={() => { handleStarsChange(index) }}
-                                            >
-                                                {stars[index] ? <StarIcon sx={{ color: '#ffff00' }} /> : <StarBorderIcon />}
-                                            </IconButton>
-                                        </Box> */}
-                                    </Card>
-                            ))}
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </Box>
+                                </CardContent>
+
+                            </Card>
+                        ))}
                 </Box>
 
             </Box>
+            {notification &&
+                  <Notification message={notificationMessage} status={notificationStatus} close={handleCloseNotification} />
+                }
         </SecureRoute>
     )
 }
