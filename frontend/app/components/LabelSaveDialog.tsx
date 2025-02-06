@@ -34,7 +34,7 @@ export default function LabelSaveDialog({ open, setOpen, saveLabel }: FormDialog
         },
       }}
     >
-      <DialogTitle>Save Label</DialogTitle>
+      <DialogTitle>Save As New Label</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Please provide a name for the saved label

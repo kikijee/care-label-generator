@@ -15,6 +15,8 @@ interface PendingDataContextType {
     rnNumber:string;
     address:string;
     website:string;
+    alignment:string;
+    marginLeft:number;
 }
 
 export const PendingDataContext = createContext<PendingDataContextType | null>(null);
@@ -32,6 +34,8 @@ interface PendingDataDispatchType {
     setRnNumber: React.Dispatch<React.SetStateAction<string>>;
     setAddress: React.Dispatch<React.SetStateAction<string>>;
     setWebsite: React.Dispatch<React.SetStateAction<string>>;
+    setAlignment: React.Dispatch<React.SetStateAction<string>>;
+    setMarginLeft: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const PendingDataDispatchContext = createContext<PendingDataDispatchType | null>(null);
@@ -44,11 +48,13 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [x,setX] = useState<number>(1.18);
     const [y,setY] = useState<number>(2.36);
     const [seamGap, setSeamGap] = useState<number>(0.25);
-    const [zoom, setZoom] = useState<number>(1);
+    const [zoom, setZoom] = useState<number>(75);
     const [fontSize, setFontSize] = useState<number>(6);
     const [rnNumber, setRnNumber] = useState<string>("");
     const [address, setAddress] = useState<string>("");
     const [website, setWebsite] = useState<string>("");
+    const [alignment, setAlignment] = useState<string>("Left");
+    const [marginLeft, setMarginLeft] = useState<number>(0);
 
     const dispatch = {
         setSelectedLanguages,
@@ -62,7 +68,9 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         setFontSize,
         setRnNumber,
         setAddress,
-        setWebsite
+        setWebsite,
+        setAlignment,
+        setMarginLeft
     };
 
     const pendingData = {
@@ -77,7 +85,9 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         fontSize,
         rnNumber,
         address,
-        website
+        website,
+        alignment,
+        marginLeft
     };
 
     return (

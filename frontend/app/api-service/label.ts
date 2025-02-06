@@ -31,6 +31,16 @@ export async function save_label(body: any) {
     }
 }
 
+export async function update_label(body: any, id: number) {
+    try {
+        const response = await labelAxios.put(`/api/label/${id}`,body);
+        return response;
+    } catch (error: any) {
+        console.error("Error during label update:", error);
+        return error.response;
+    }
+}
+
 export async function get_label_by_id(id: number) {
     try {
         const response = await labelAxios.get(`/api/label/${id}`);

@@ -1,5 +1,5 @@
 'use client'
-import { Box, Typography, CssBaseline, Container, SpeedDial, SpeedDialAction } from "@mui/material"
+import { Box, Typography, CssBaseline, Container, SpeedDial, SpeedDialAction, TextField } from "@mui/material"
 import { materials, careInstructions, coo } from "@/public/data/data"
 import { useState, useEffect, use } from "react"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -13,10 +13,11 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SecureRoute from "@/app/secureRoute/SecureRoute";
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { save_label } from "@/app/api-service/label";
+import { save_label, update_label } from "@/app/api-service/label";
 import LabelSaveDialog from "@/app/components/LabelSaveDialog";
 import Notification from "@/app/components/Notification";
 import { get_label_by_id } from "@/app/api-service/label";
+import SaveIcon from '@mui/icons-material/Save';
 
 
 const Page = ({ params }: { params: Promise<{ id: number }> }) => {
@@ -57,19 +58,7 @@ const Page = ({ params }: { params: Promise<{ id: number }> }) => {
                 console.log(response.data)
             }
             else {
-                return (
-                    <Box
-                        sx={{
-                            minHeight: '100vh',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                    >
-                        <CssBaseline />
-                        Server Error
-                    </Box>
-                )
+                setLoading(false);
             }
         }
         fetchData();
@@ -127,6 +116,42 @@ const Page = ({ params }: { params: Promise<{ id: number }> }) => {
         };
         const response = await save_label(body);
         if (response.status === 201) {
+            setNotificationStatus(true)
+            setNotification(true)
+            setNotificationMessage("Save Success");
+            console.log(response.data);
+        }
+        else {
+            setNotificationStatus(false)
+            setNotification(true)
+            setNotificationMessage("Save Failure");
+            console.error("error in label save", response.data.message);
+        }
+    }
+
+    const handleLabelUpdate = async () => {
+        const body = {
+            label_data: {
+                Title: title,
+                Measurements: {
+                    SeamGap: pendingData?.seamGap,
+                    Width: pendingData?.x,
+                    Height: pendingData?.y,
+                    FontSize: pendingData?.fontSize
+                },
+                CountryOfOrigin:pendingData?.cooIndex,
+                FiberContent: pendingData?.fiberContent,
+                CareLabel: pendingData?.careInstructionsList,
+                AdditionalInfo: {
+                    RnNumber: pendingData?.rnNumber,
+                    Address: pendingData?.address,
+                    Website: pendingData?.website
+                },
+                Languages: pendingData?.selectedLanguages
+            }
+        };
+        const response = await update_label(body, id);
+        if (response.status === 200) {
             setNotificationStatus(true)
             setNotification(true)
             setNotificationMessage("Save Success");
@@ -288,16 +313,23 @@ const Page = ({ params }: { params: Promise<{ id: number }> }) => {
                         <Box
                             sx={{
                                 display: "flex",
+                                alignItems:'center',
                                 padding: 3,
                             }}
                         >
                             <Typography
                                 sx={{
-                                    fontSize: 20
+                                    fontSize: 20,
+                                    pr:2
                                 }}
                             >
-                                CARE LABEL OPTIONS {` LABEL: ${title}`}
+                                CARE LABEL OPTIONS {` LABEL: `}
                             </Typography>
+                            <TextField 
+                                size="small"
+                                value={title}
+                                onChange={(e:any)=>setTitle(e.target.value)}
+                            />
                         </Box>
                         <VerticalTabs />
 
@@ -479,8 +511,13 @@ const Page = ({ params }: { params: Promise<{ id: number }> }) => {
                     />
                     <SpeedDialAction
                         icon={<BookmarkIcon />}
-                        tooltipTitle="Save Label"
+                        tooltipTitle="Save As New Label"
                         onClick={() => setOpenSaveDialog(true)}
+                    />
+                    <SpeedDialAction
+                        icon={<SaveIcon />}
+                        tooltipTitle="Save Label"
+                        onClick={handleLabelUpdate}
                     />
                 </SpeedDial>
                 <LabelSaveDialog open={openSaveDialog} setOpen={setOpenSaveDialog} saveLabel={handleLabelSave} />

@@ -53,6 +53,8 @@ const Dashboard = () => {
     const [notification, setNotification] = useState(false);
     const [notificationStatus,setNotificationStatus] = useState(false);
     const [notificationMessage,setNotificationMessage] = useState("");
+    const [search, setSearch] = useState("");
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -85,7 +87,8 @@ const Dashboard = () => {
                     : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(); // Ascending
             }
             return 0;
-        });
+        })
+        .filter(item => item.Title.toLowerCase().includes(search.toLowerCase()));
 
 
     // const handleStarredChange = () => {
@@ -185,7 +188,13 @@ const Dashboard = () => {
                             gap: 2
                         }}
                     >
-                        <TextField size="small" label="search" variant="outlined" />
+                        <TextField 
+                            size="small" 
+                            label="search" 
+                            variant="outlined"
+                            value={search}
+                            onChange={(e:any)=>setSearch(e.target.value)}
+                        />
 
                         <IconButton
                             onClick={handleAlphaOptionChange}
