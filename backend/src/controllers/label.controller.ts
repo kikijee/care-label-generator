@@ -13,7 +13,9 @@ interface Label {
             SeamGap: number,
             Width: number,
             Height: number,
-            FontSize: number
+            FontSize: number,
+            TextAlignment: string,
+            MarginLeft: number
         };
         CountryOfOrigin: number;
         FiberContent: Array<number>;

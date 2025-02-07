@@ -7,28 +7,28 @@ export const Measurements = () => {
     const pendingData = usePendingData()
     const dispatch = usePendingDataDispatch()
 
-    const handleSeamChange = (value: any) => {
-        dispatch?.setSeamGap(value)
+    const handleSeamChange = (value: string) => {
+        dispatch?.setSeamGap(Number(value))
     }
 
-    const handleXChange = (value: any) => {
-        dispatch?.setX(value)
+    const handleXChange = (value: string) => {
+        dispatch?.setX(Number(value))
     }
 
-    const handleYChange = (value: any) => {
-        dispatch?.setY(value)
+    const handleYChange = (value: string) => {
+        dispatch?.setY(Number(value))
     }
 
-    const handleFontChange = (value: any) => {
-        dispatch?.setFontSize(value)
+    const handleFontChange = (value: string) => {
+        dispatch?.setFontSize(Number(value))
     }
 
     const handleAlignmentChange = (value: string) => {
         dispatch?.setAlignment(value)
     }
 
-    const handleMarginLeftChange = (value: any) => {
-        dispatch?.setMarginLeft(value)
+    const handleMarginLeftChange = (value: string) => {
+        dispatch?.setMarginLeft(Number(value))
     }
 
     return (

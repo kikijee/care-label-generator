@@ -2,6 +2,7 @@ import * as React from 'react';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import { Divider } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import StraightenIcon from '@mui/icons-material/Straighten';
@@ -62,93 +63,89 @@ export default function VerticalTabs() {
   return (
     <Box
       sx={{
-        flexGrow: 1,
         display: 'flex',
         minHeight: '100vh',
-        paddingTop: 3,
       }}
     >
       <Tabs
-  orientation="vertical"
-  variant="scrollable"
-  value={value}
-  onChange={handleChange}
-  sx={{
-    borderRight: 1,
-    borderColor: 'divider',
-    width: { xl: '130px', lg: '130px', md: '130px', sm: '40px', xs: '40px' },
-    flexShrink: 0,
-    padding: 0, 
-    alignItems: 'flex-start', 
-  }}
->
-  <Tab
-    icon={isSmallScreen ? <StraightenIcon /> : undefined}
-    iconPosition="start"
-    label={!isSmallScreen ? 'Measurements' : ''}
-    {...a11yProps(0)}
-    sx={{
-      padding: 0, 
-      textAlign: 'left', 
-      justifyContent: 'flex-start', 
-    }}
-  />
-  <Tab
-    icon={isSmallScreen ? <PublicIcon /> : undefined}
-    iconPosition="start"
-    label={!isSmallScreen ? 'Country of Origin' : ''}
-    {...a11yProps(1)}
-    sx={{
-      padding: 0,
-      textAlign: 'left',
-      justifyContent: 'flex-start',
-    }}
-  />
-  <Tab
-    icon={isSmallScreen ? <FiberManualRecordIcon /> : undefined}
-    iconPosition="start"
-    label={!isSmallScreen ? 'Fiber Content' : ''}
-    {...a11yProps(2)}
-    sx={{
-      padding: 0,
-      textAlign: 'left',
-      justifyContent: 'flex-start',
-    }}
-  />
-  <Tab
-    icon={isSmallScreen ? <CleaningServicesIcon /> : undefined}
-    iconPosition="start"
-    label={!isSmallScreen ? 'Care Instructions' : ''}
-    {...a11yProps(3)}
-    sx={{
-      padding: 0,
-      textAlign: 'left',
-      justifyContent: 'flex-start',
-    }}
-  />
-  <Tab
-    icon={isSmallScreen ? <InfoIcon /> : undefined}
-    iconPosition="start"
-    label={!isSmallScreen ? 'Additional Info' : ''}
-    {...a11yProps(4)}
-    sx={{
-      padding: 0,
-      textAlign: 'left',
-      justifyContent: 'flex-start',
-    }}
-  />
-  <Tab
-    icon={isSmallScreen ? <LanguageIcon /> : undefined}
-    iconPosition="start"
-    label={!isSmallScreen ? 'Languages' : ''}
-    {...a11yProps(5)}
-    sx={{
-      padding: 0,
-      textAlign: 'left',
-      justifyContent: 'flex-start',
-    }}
-  />
-</Tabs>
+        orientation="vertical"
+        variant="scrollable"
+        value={value}
+        onChange={handleChange}
+        sx={{
+          borderRight: 1,
+          borderColor: 'divider',
+          alignItems: 'flex-start',
+          flexShrink: 0, // Prevent shrinking when screen resizes
+        }}
+      >
+        <Tab
+          icon={isSmallScreen ? <StraightenIcon /> : undefined}
+          iconPosition="start"
+          label={!isSmallScreen ? 'Measurements' : ''}
+          {...a11yProps(0)}
+          sx={{
+            px:2,
+            textAlign: 'left',
+            justifyContent: 'flex-start',
+          }}
+        />
+        <Tab
+          icon={isSmallScreen ? <PublicIcon /> : undefined}
+          iconPosition="start"
+          label={!isSmallScreen ? 'Country of Origin' : ''}
+          {...a11yProps(1)}
+          sx={{
+            px:2,
+            textAlign: 'left',
+            justifyContent: 'flex-start',
+          }}
+        />
+        <Tab
+          icon={isSmallScreen ? <FiberManualRecordIcon /> : undefined}
+          iconPosition="start"
+          label={!isSmallScreen ? 'Fiber Content' : ''}
+          {...a11yProps(2)}
+          sx={{
+            px:2,
+            textAlign: 'left',
+            justifyContent: 'flex-start',
+          }}
+        />
+        <Tab
+          icon={isSmallScreen ? <CleaningServicesIcon /> : undefined}
+          iconPosition="start"
+          label={!isSmallScreen ? 'Care Instructions' : ''}
+          {...a11yProps(3)}
+          sx={{
+            px:2,
+            textAlign: 'left',
+            justifyContent: 'flex-start',
+          }}
+        />
+        <Tab
+          icon={isSmallScreen ? <InfoIcon /> : undefined}
+          iconPosition="start"
+          label={!isSmallScreen ? 'Additional Info' : ''}
+          {...a11yProps(4)}
+          sx={{
+            px:2,
+            textAlign: 'left',
+            justifyContent: 'flex-start',
+          }}
+        />
+        <Tab
+          icon={isSmallScreen ? <LanguageIcon /> : undefined}
+          iconPosition="start"
+          label={!isSmallScreen ? 'Languages' : ''}
+          {...a11yProps(5)}
+          sx={{
+            px:2,
+            textAlign: 'left',
+            justifyContent: 'flex-start',
+          }}
+        />
+      </Tabs>
 
       <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
         <TabPanel value={value} index={0}>

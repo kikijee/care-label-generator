@@ -15,11 +15,16 @@ export const Languages = () => {
     };
 
     return (
-        <>
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: 'center',
+                flexDirection: 'column'
+            }}
+        >
             <Box
                 sx={{
-                    display: "flex",
-                    justifyContent: "center",
                     pt: 5
                 }}
             >
@@ -29,11 +34,18 @@ export const Languages = () => {
             </Box>
             <Box
                 sx={{
-                    display: 'flex',
-                    pt: 4
+                    pt:2,
+                    width:'75%'
                 }}
             >
-                <FormGroup row>
+                <FormGroup 
+                    sx={{
+                        display: 'flex',
+                        justifyContent: "center",
+                        alignItems:'center',
+                    }} 
+                    row
+                >
                     {languages.map((lang, i) => (
                         <FormControlLabel
                             key={i}
@@ -48,6 +60,6 @@ export const Languages = () => {
                     ))}
                 </FormGroup>
             </Box>
-        </>
+        </Box>
     )
 }

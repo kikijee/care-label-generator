@@ -9,6 +9,8 @@ export const labelCreationSchema = z.object({
             Width: z.number(),
             Height: z.number(),
             FontSize: z.number(),
+            TextAlignment: z.string(),
+            MarginLeft: z.number()
         }),
         CountryOfOrigin: z.number(),
         FiberContent: z.array(z.object({material: z.number(), percentage: z.string()})),
