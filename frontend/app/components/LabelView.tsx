@@ -314,7 +314,9 @@ export const LabelView = ({ id }: { id?: number }) => {
                         sx={{
                             bgcolor: "#212121",
                             minHeight: '100vh',
-                            width:'100%'
+                            width:'100%',
+                            borderRight: 1,
+                            borderColor: 'divider',
                         }}
                     >
                         <Box
@@ -328,7 +330,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                             <>
                                 <Typography
                                     sx={{
-                                        fontSize: 20,
+                                        fontSize: {xl:20,lg:20,md:20,sm:15,xs:15},
                                         px:2
                                     }}
                                 >
@@ -343,7 +345,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                             :
                             <Typography
                                 sx={{
-                                    fontSize: 20,
+                                    fontSize: {xl:20,lg:20,md:20,sm:15,xs:15},
                                     pr:2
                                 }}
                             >
@@ -414,6 +416,16 @@ export const LabelView = ({ id }: { id?: number }) => {
                                                 paddingLeft: `${(pendingData?.marginLeft * 96) * ((pendingData.marginLeft) * 0.01 + 1)}px`,
                                             }}
                                         >
+                                            { pendingData.logo &&
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: "center",
+                                                    }}
+                                                >
+                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ width: 50, height: "auto"}} />
+                                                </Box>
+                                            }
                                             <Box
                                                 sx={{
                                                     display:'flex',

@@ -17,6 +17,7 @@ interface PendingDataContextType {
     website:string;
     alignment:string;
     marginLeft:number;
+    logo:string;
 }
 
 export const PendingDataContext = createContext<PendingDataContextType | null>(null);
@@ -36,6 +37,7 @@ interface PendingDataDispatchType {
     setWebsite: React.Dispatch<React.SetStateAction<string>>;
     setAlignment: React.Dispatch<React.SetStateAction<string>>;
     setMarginLeft: React.Dispatch<React.SetStateAction<number>>;
+    setLogo: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const PendingDataDispatchContext = createContext<PendingDataDispatchType | null>(null);
@@ -55,6 +57,7 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [website, setWebsite] = useState<string>("");
     const [alignment, setAlignment] = useState<string>("Left");
     const [marginLeft, setMarginLeft] = useState<number>(0);
+    const [logo, setLogo] = useState<string>("");
 
     const dispatch = {
         setSelectedLanguages,
@@ -70,7 +73,8 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         setAddress,
         setWebsite,
         setAlignment,
-        setMarginLeft
+        setMarginLeft,
+        setLogo
     };
 
     const pendingData = {
@@ -87,7 +91,8 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         address,
         website,
         alignment,
-        marginLeft
+        marginLeft,
+        logo
     };
 
     return (

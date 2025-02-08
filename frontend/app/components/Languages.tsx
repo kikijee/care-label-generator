@@ -35,7 +35,7 @@ export const Languages = () => {
             <Box
                 sx={{
                     pt:2,
-                    width:'75%'
+                    width:{xl:'75%',lg:'75%',md:'75%'}
                 }}
             >
                 <FormGroup 

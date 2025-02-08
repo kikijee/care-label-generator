@@ -36,7 +36,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ paddingLeft: 5 }}>
+        <Box sx={{ paddingLeft: 0 }}>
           {children}
         </Box>
       )}
@@ -76,6 +76,7 @@ export default function VerticalTabs() {
           borderRight: 1,
           borderColor: 'divider',
           alignItems: 'flex-start',
+          width:{xs:58, sm:58, md:'auto', lg:'auto', xl: 'auto'},
           flexShrink: 0, // Prevent shrinking when screen resizes
         }}
       >
