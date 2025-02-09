@@ -57,7 +57,7 @@ export const define_user = (sequelize: Sequelize) => {
             Address: {
                 type: DataTypes.STRING(255),
                 allowNull: true,
-            },
+            }
         },
         { timestamps: true }
     );

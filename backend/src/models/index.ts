@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { db_config } from "../config/db.config";
 import { define_label } from "./label.model";
 import { define_user } from "./user.model";
+import { define_logo } from "./logo.model";
 import { MongoClient } from 'mongodb';
 
 dotenv.config();
@@ -25,7 +26,8 @@ export const db = {
   Sequelize: Sequelize,
   sequelize: sequelize,
   users: define_user(sequelize),
-  labels: define_label(sequelize)
+  labels: define_label(sequelize),
+  logos: define_logo(sequelize)
 };
 
 // DB Relationships
@@ -37,4 +39,15 @@ db.users.hasMany(db.labels,{
 db.labels.belongsTo(db.users,{
   foreignKey: 'UserID'
 })
+
+db.logos.hasMany(db.labels,{
+  foreignKey: 'LogoID',
+})
+
+db.labels.belongsTo(db.logos,{
+  foreignKey: 'LogoID'
+})
+
+// db.labels.belongsToMany(db.logos,{ through: 'Label_Logos'})
+// db.logos.belongsToMany(db.labels,{ through: 'Label_Logos'})
 

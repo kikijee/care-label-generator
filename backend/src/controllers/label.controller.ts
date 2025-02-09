@@ -208,3 +208,7 @@ export const update_label = async (req: Request, res: Response) => {
         await mongo_client.close();
     }
 };
+
+export const upload_logo = async (req: Request, res: Response) => {
+
+}
