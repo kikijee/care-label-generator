@@ -4,6 +4,7 @@ import { Transaction } from "sequelize";
 import { StatusCodes } from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 import { MongoClient } from "mongodb";
+import { createHash } from "crypto";
 
 
 
@@ -17,7 +18,10 @@ interface Label {
             Height: number,
             FontSize: number,
             TextAlignment: string,
-            MarginLeft: number
+            MarginLeft: number,
+            LogoSize: number,
+            LogoMarginTop: number,
+            LogoMarginBottom: number
         };
         CountryOfOrigin: number;
         FiberContent: Array<number>;
@@ -28,7 +32,7 @@ interface Label {
             Website: string
         };
         Languages: Array<string>;
-        ImageURL?: string
+        ImageURL: string
     }
 }
 
@@ -213,25 +217,104 @@ export const update_label = async (req: Request, res: Response) => {
 };
 
 export const upload_logo = async (req: Request, res: Response) => {
+    const transaction: Transaction = await db.sequelize.transaction();
+    const mongo_client = new MongoClient(uri);
+
     try {
+        await mongo_client.connect();
+        const mongo = mongo_client.db("care-label");
+        const collection = mongo.collection("labels");
+
+        // Validate request file
         if (!req.file) {
-            res.status(400).json({ error: "No file uploaded" });
-            return
+            res.status(StatusCodes.BAD_REQUEST).json({ message: "No file uploaded" });
+            return 
         }
 
-        const fileName = `logos/${Date.now()}-${req.file.originalname}`;
-        const file = bucket.file(fileName);
+        // Find label by ID
+        let label = await db.labels.findByPk(req.params.id, { transaction });
+        if (!label) {
+            res.status(StatusCodes.BAD_REQUEST).json({ message: `No label with ID ${req.params.id}` });
+            return 
+        }
 
-        await file.save(req.file.buffer, {
-            metadata: { contentType: req.file.mimetype },
-        });
-
-        await file.makePublic();
-
+        // Generate hash for the file (SHA-256)
+        const fileBuffer = req.file.buffer;
+        const hash = createHash("sha256").update(fileBuffer).digest("hex");
+        const fileExtension = req.file.originalname.split(".").pop();
+        const fileName = `logos/${hash}.${fileExtension}`;
         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
 
-        res.json({ message: `Logo successfully uploaded`, url: publicUrl });
+        if (label.LogoID === hash){
+            res.status(StatusCodes.OK).json({ message: `label id ${req.params.id} already has this logo` });
+            return 
+        }
+
+        // Check if logo already exists
+        let logoRef = await db.logos.findByPk(hash, { transaction });
+
+        if (logoRef) {
+            await logoRef.increment("References", { transaction });
+        } else {
+            // Create a new logo entry
+            logoRef = await db.logos.create({ LogoID: hash, References: 1 }, { transaction });
+
+            // Upload new logo file to Firebase Storage
+            const file = bucket.file(fileName);
+            await file.save(fileBuffer, { metadata: { contentType: req.file.mimetype } });
+            await file.makePublic();
+        }
+        label.LogoID = hash;
+        await label.save({transaction})
+
+        // Update ImageURL in MongoDB
+        await collection.updateOne(
+            { _id: new ObjectId(label.DocumentID) },
+            { $set: { ImageURL: publicUrl } }
+        );
+
+        // Commit transaction
+        await transaction.commit();
+
+        res.status(StatusCodes.OK).send({ message: "Logo successfully uploaded", url: publicUrl });
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        await transaction.rollback();
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Upload failed", error: error.message });
+    } finally {
+        await mongo_client.close();
     }
 };
+
+export const remove_image_url = async (req: Request, res: Response) => {
+    const mongo_client = new MongoClient(uri);
+    const transaction: Transaction = await db.sequelize.transaction();
+    try {
+        await mongo_client.connect();
+        const mongo = mongo_client.db("care-label");
+        const collection = mongo.collection("labels");
+
+        let label = await db.labels.findByPk(req.params.id, { transaction });
+        if (!label) {
+            res.status(StatusCodes.BAD_REQUEST).json({ message: `No label with ID ${req.params.id}` });
+            return 
+        }
+
+        // label.LogoID = "";
+        // await label.save({transaction})
+
+        await collection.updateOne(
+            { _id: new ObjectId(label.DocumentID) },
+            { $set: { ImageURL: "" } }
+        );
+
+        await transaction.commit();
+
+        res.status(StatusCodes.OK).send({ message: "Logo successfully removed" });
+
+    } catch (error: any) {
+        await transaction.rollback();
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Logo removal failure", error: error.message });
+    } finally {
+        await mongo_client.close();
+    }
+}

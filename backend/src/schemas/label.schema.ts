@@ -10,7 +10,10 @@ export const labelCreationSchema = z.object({
             Height: z.number(),
             FontSize: z.number(),
             TextAlignment: z.string(),
-            MarginLeft: z.number()
+            MarginLeft: z.number(),
+            LogoSize: z.number(),
+            LogoMarginTop: z.number(),
+            LogoMarginBottom: z.number()
         }),
         CountryOfOrigin: z.number(),
         FiberContent: z.array(z.object({material: z.number(), percentage: z.string()})),
@@ -20,6 +23,6 @@ export const labelCreationSchema = z.object({
             Address: z.string(),
             Website: z.string(),
         }),
-        Languages: z.array(z.string()),
+        Languages: z.array(z.string())
     }),
 });

@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-db.sequelize.sync({ force: true}).then(()=>{
+db.sequelize.sync({ force: false}).then(()=>{
   console.log("synced db");
 }).catch((error:any)=>{
   console.log(`Failed to sync db: ${error}`);

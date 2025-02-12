@@ -1,7 +1,7 @@
 'use client'
 import { Box, Typography, CssBaseline, Container, SpeedDial, SpeedDialAction, TextField, Divider } from "@mui/material"
 import { materials, careInstructions, coo } from "@/public/data/data"
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import VerticalTabs from "@/app/components/VerticalTabs";
 import { usePendingData, usePendingDataDispatch } from "@/app/context/CareEditorContext";
@@ -13,7 +13,7 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SecureRoute from "@/app/secureRoute/SecureRoute";
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import { save_label, update_label } from "@/app/api-service/label";
+import { save_label, update_label, upload_logo, remove_logo } from "@/app/api-service/label";
 import LabelSaveDialog from "@/app/components/LabelSaveDialog";
 import Notification from "@/app/components/Notification";
 import { get_label_by_id } from "@/app/api-service/label";
@@ -56,6 +56,10 @@ export const LabelView = ({ id }: { id?: number }) => {
                     dispatch?.setCooIndex(response.data.CountryOfOrigin);
                     dispatch?.setAlignment(response.data.Measurements.TextAlignment);
                     dispatch?.setMarginLeft(response.data.Measurements.MarginLeft);
+                    dispatch?.setLogoSize(response.data.Measurements.LogoSize);
+                    dispatch?.setLogoMarginTop(response.data.Measurements.LogoMarginTop);
+                    dispatch?.setLogoMarginBottom(response.data.Measurements.LogoMarginBottom);
+                    dispatch?.setLogo(response.data.ImageURL)
                     setLoading(false);
                     console.log(response.data)
                 }
@@ -109,7 +113,10 @@ export const LabelView = ({ id }: { id?: number }) => {
                     Height: pendingData?.y,
                     FontSize: pendingData?.fontSize,
                     TextAlignment: pendingData?.alignment,
-                    MarginLeft: pendingData?.marginLeft
+                    MarginLeft: pendingData?.marginLeft,
+                    LogoSize: pendingData?.logoSize,
+                    LogoMarginTop: pendingData?.logoMarginTop,
+                    LogoMarginBottom: pendingData?.logoMarginBottom
                 },
                 CountryOfOrigin:pendingData?.cooIndex,
                 FiberContent: pendingData?.fiberContent,
@@ -119,12 +126,17 @@ export const LabelView = ({ id }: { id?: number }) => {
                     Address: pendingData?.address,
                     Website: pendingData?.website
                 },
-                Languages: pendingData?.selectedLanguages
+                Languages: pendingData?.selectedLanguages,
             }
         };
-        console.log(body);
         const response = await save_label(body);
-        if (response.status === 201) {
+
+        let response_label = {status:200,message:''}
+        if (pendingData?.logoFormData){
+            response_label = await upload_logo(pendingData.logoFormData, response.data.sql.LabelID);
+        }
+        
+        if (response.status === 201 &&  response_label.status === 200) {
             setNotificationStatus(true)
             setNotification(true)
             setNotificationMessage("Save Success");
@@ -134,7 +146,7 @@ export const LabelView = ({ id }: { id?: number }) => {
             setNotificationStatus(false)
             setNotification(true)
             setNotificationMessage("Save Failure");
-            console.error("error in label save", response.data.message);
+            console.error("error in label save", response.data.message, response_label.message);
         }
     }
 
@@ -149,7 +161,10 @@ export const LabelView = ({ id }: { id?: number }) => {
                         Height: pendingData?.y,
                         FontSize: pendingData?.fontSize,
                         TextAlignment: pendingData?.alignment,
-                        MarginLeft: pendingData?.marginLeft
+                        MarginLeft: pendingData?.marginLeft,
+                        LogoSize: pendingData?.logoSize,
+                        LogoMarginTop: pendingData?.logoMarginTop,
+                        LogoMarginBottom: pendingData?.logoMarginBottom
                     },
                     CountryOfOrigin:pendingData?.cooIndex,
                     FiberContent: pendingData?.fiberContent,
@@ -163,7 +178,18 @@ export const LabelView = ({ id }: { id?: number }) => {
                 }
             };
             const response = await update_label(body, id);
-            if (response.status === 200) {
+            let response_label = {status:200,message:''};
+
+            if (pendingData?.logoFormData){
+                response_label = await upload_logo(pendingData.logoFormData, id);
+            }
+
+            if (pendingData?.logo === ""){
+                const res = await remove_logo(id);
+                console.log(res);
+            }
+
+            if (response.status === 200 && response_label.status === 200) {
                 setNotificationStatus(true)
                 setNotification(true)
                 setNotificationMessage("Save Success");
@@ -413,7 +439,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                                                 height: (pendingData?.y * 96 || 226.56) * ((pendingData.zoom) * 0.01 + 1),
                                                 bgcolor: 'white',
                                                 paddingTop: `${(pendingData?.seamGap * 96) * ((pendingData.zoom) * 0.01 + 1)}px`,
-                                                paddingLeft: `${(pendingData?.marginLeft * 96) * ((pendingData.marginLeft) * 0.01 + 1)}px`,
+        
                                             }}
                                         >
                                             { pendingData.logo &&
@@ -421,9 +447,11 @@ export const LabelView = ({ id }: { id?: number }) => {
                                                     sx={{
                                                         display: 'flex',
                                                         justifyContent: "center",
+                                                        pt: `${(pendingData?.logoMarginTop * 96) * ((pendingData.zoom) * 0.01 + 1)}px`,
+                                                        pb: `${(pendingData?.logoMarginBottom * 96) * ((pendingData.zoom) * 0.01 + 1)}px`
                                                     }}
                                                 >
-                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ width: 50, height: "auto"}} />
+                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ width: `${((pendingData?.logoSize*96)*((pendingData.zoom) * 0.01 + 1))}px`, height: "auto"}} />
                                                 </Box>
                                             }
                                             <Box
@@ -431,7 +459,8 @@ export const LabelView = ({ id }: { id?: number }) => {
                                                     display:'flex',
                                                     flexDirection: 'column',
                                                     alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start',
-                                                    textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left'
+                                                    textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                    paddingLeft: `${(pendingData?.marginLeft * 96) * ((pendingData.marginLeft) * 0.01 + 1)}px`,
                                                 }}
                                             >
                                                 {pendingData?.cooIndex !== 0 &&
@@ -472,7 +501,8 @@ export const LabelView = ({ id }: { id?: number }) => {
                                                     display:'flex',
                                                     flexDirection: 'column',
                                                     alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start',
-                                                    textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left'
+                                                    textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                    paddingLeft: `${(pendingData?.marginLeft * 96) * ((pendingData.marginLeft) * 0.01 + 1)}px`,
                                                 }}
                                             > {/* Ensures bottom alignment */}
                                                 {pendingData?.rnNumber !== "" &&

@@ -60,3 +60,27 @@ export async function delete_label(id: number) {
         return error.response;
     }
 }
+
+export async function upload_logo(formData: FormData, labelId: number) {
+    try {
+        const response = await labelAxios.post(`/api/label/upload-logo/${labelId}`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response;
+    } catch (error: any) {
+        console.error("Error during logo upload:", error);
+        return error.response;
+    }
+}
+
+export async function remove_logo(labelId: number) {
+    try {
+        const response = await labelAxios.patch(`/api/label/remove-logo/${labelId}`);
+        return response;
+    } catch (error: any) {
+        console.error("Error during label removal:", error);
+        return error.response;
+    }
+}

@@ -3,7 +3,7 @@ import { Sequelize, Model, DataTypes } from "sequelize";
 // Define TypeScript interface for User attributes
 interface LogoAttributes {
     LogoID: string;
-    References: number;
+    References?: number;
     createdAt?: Date; 
     updatedAt?: Date;
 }
@@ -22,6 +22,7 @@ export const define_logo = (sequelize: Sequelize) => {
             References: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
+                defaultValue: 0
             }
         },
         { timestamps: true }

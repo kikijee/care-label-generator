@@ -18,6 +18,10 @@ interface PendingDataContextType {
     alignment:string;
     marginLeft:number;
     logo:string;
+    logoSize: number;
+    logoMarginTop: number;
+    logoMarginBottom: number;
+    logoFormData: FormData | null;
 }
 
 export const PendingDataContext = createContext<PendingDataContextType | null>(null);
@@ -38,6 +42,11 @@ interface PendingDataDispatchType {
     setAlignment: React.Dispatch<React.SetStateAction<string>>;
     setMarginLeft: React.Dispatch<React.SetStateAction<number>>;
     setLogo: React.Dispatch<React.SetStateAction<string>>;
+    setLogoSize: React.Dispatch<React.SetStateAction<number>>;
+    setLogoMarginTop: React.Dispatch<React.SetStateAction<number>>;
+    setLogoMarginBottom: React.Dispatch<React.SetStateAction<number>>;
+    setLogoFormData: React.Dispatch<React.SetStateAction<FormData | null>>;
+
 }
 
 export const PendingDataDispatchContext = createContext<PendingDataDispatchType | null>(null);
@@ -58,6 +67,10 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [alignment, setAlignment] = useState<string>("Left");
     const [marginLeft, setMarginLeft] = useState<number>(0);
     const [logo, setLogo] = useState<string>("");
+    const [logoSize, setLogoSize] = useState<number>(0.2);
+    const [logoMarginTop, setLogoMarginTop] = useState<number>(0);
+    const [logoMarginBottom, setLogoMarginBottom] = useState<number>(0);
+    const [logoFormData, setLogoFormData] = useState<FormData | null>(null);
 
     const dispatch = {
         setSelectedLanguages,
@@ -74,7 +87,11 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         setWebsite,
         setAlignment,
         setMarginLeft,
-        setLogo
+        setLogo,
+        setLogoSize,
+        setLogoMarginTop,
+        setLogoMarginBottom,
+        setLogoFormData
     };
 
     const pendingData = {
@@ -92,7 +109,11 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         website,
         alignment,
         marginLeft,
-        logo
+        logo,
+        logoSize,
+        logoMarginTop,
+        logoMarginBottom,
+        logoFormData
     };
 
     return (
