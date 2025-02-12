@@ -1,9 +1,11 @@
-import { db } from "../models";
+import { db, bucket } from "../models";
 import { Request, Response } from "express";
 import { Transaction } from "sequelize";
 import { StatusCodes } from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 import { MongoClient } from "mongodb";
+
+
 
 interface Label {
     label_data:{
@@ -26,6 +28,7 @@ interface Label {
             Website: string
         };
         Languages: Array<string>;
+        ImageURL?: string
     }
 }
 
@@ -210,5 +213,25 @@ export const update_label = async (req: Request, res: Response) => {
 };
 
 export const upload_logo = async (req: Request, res: Response) => {
+    try {
+        if (!req.file) {
+            res.status(400).json({ error: "No file uploaded" });
+            return
+        }
 
-}
+        const fileName = `logos/${Date.now()}-${req.file.originalname}`;
+        const file = bucket.file(fileName);
+
+        await file.save(req.file.buffer, {
+            metadata: { contentType: req.file.mimetype },
+        });
+
+        await file.makePublic();
+
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+        res.json({ message: `Logo successfully uploaded`, url: publicUrl });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};

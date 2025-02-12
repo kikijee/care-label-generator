@@ -25,3 +25,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+/care-label-app-firebase-adminsdk-fbsvc-40523dc212.json
+

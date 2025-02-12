@@ -4,12 +4,21 @@ import { db_config } from "../config/db.config";
 import { define_label } from "./label.model";
 import { define_user } from "./user.model";
 import { define_logo } from "./logo.model";
-import { MongoClient } from 'mongodb';
+import  admin, {ServiceAccount}  from "firebase-admin";
+import { firebase_service } from "../config/db.config";
+import { getStorage } from "firebase-admin/storage";
 
 dotenv.config();
 
-const uri = process.env.MONGODB_URI as string;
-const mongo_client = new MongoClient(uri);
+const serviceAccount = require('../../care-label-app-firebase-adminsdk-fbsvc-40523dc212.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: "care-label-app.firebasestorage.app"  
+})
+
+export const bucket = getStorage().bucket();
+
 
 const sequelize = new Sequelize(db_config.DB as string, db_config.USER as string, db_config.PASSWORD as string, {
   host: db_config.HOST as string,

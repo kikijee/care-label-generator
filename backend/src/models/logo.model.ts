@@ -2,7 +2,7 @@ import { Sequelize, Model, DataTypes } from "sequelize";
 
 // Define TypeScript interface for User attributes
 interface LogoAttributes {
-    LogoID?: string;
+    LogoID: string;
     References: number;
     createdAt?: Date; 
     updatedAt?: Date;
