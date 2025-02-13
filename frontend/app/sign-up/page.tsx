@@ -115,7 +115,7 @@ export default function SignUp() {
       Password: data.get('password'),
       Website: data.get('website') !== "" ? data.get('website') : null,
       RnNumber: data.get('rn-number') !== "" ? data.get('rn-number') : null,
-      CompanyAddress: data.get('address') !== "" ? data.get('address') : null,
+      Address: data.get('address') !== "" ? data.get('address') : null,
       Role: "User"
     });
     console.log(response)
@@ -277,7 +277,7 @@ export default function SignUp() {
               <TextField
                 disabled={signUpDisabled}
                 autoComplete="rn-number"
-                name="website"
+                name="rn-number"
                 //required
                 fullWidth
                 id="rn-number"

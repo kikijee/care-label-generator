@@ -5,7 +5,6 @@ interface LabelAttributes {
     LabelID?: number;
     DocumentID: string;
     UserID: number;
-    LogoID?: string;
     createdAt?: Date; 
     updatedAt?: Date;
 }
@@ -32,14 +31,6 @@ export const define_label = (sequelize: Sequelize) => {
                 references: {
                     model: 'Users',
                     key: 'UserID'
-                }
-            },
-            LogoID: {
-                type: DataTypes.STRING,
-                allowNull: true,
-                references: {
-                    model: 'Logos',
-                    key: 'LogoID'
                 }
             }
         },

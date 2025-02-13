@@ -147,7 +147,7 @@ export default function VerticalTabs() {
         />
       </Tabs>
 
-      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+      <Box sx={{ flexGrow: 1 }}>
         <TabPanel value={value} index={0}>
           <Measurements />
         </TabPanel>

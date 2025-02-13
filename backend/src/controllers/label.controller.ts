@@ -4,15 +4,15 @@ import { Transaction } from "sequelize";
 import { StatusCodes } from 'http-status-codes';
 import { ObjectId } from 'mongodb';
 import { MongoClient } from "mongodb";
-import { createHash } from "crypto";
+import Jwt, { JwtPayload } from "jsonwebtoken";
 
 
 
 interface Label {
-    label_data:{
+    label_data: {
         Title: string;
         _id?: string | ObjectId;
-        Measurements:{
+        Measurements: {
             SeamGap: number,
             Width: number,
             Height: number,
@@ -26,7 +26,7 @@ interface Label {
         CountryOfOrigin: number;
         FiberContent: Array<number>;
         CareLabel: Array<number>;
-        AdditionalInfo:{
+        AdditionalInfo: {
             RnNumber: string,
             Address: string,
             Website: string
@@ -41,7 +41,7 @@ const uri = process.env.MONGODB_URI as string;
 
 export const create_label = async (req: Request, res: Response) => {
     const mongo_client = new MongoClient(uri);
-    
+
     try {
         await mongo_client.connect();
         //const session = mongo_client.startSession();
@@ -85,74 +85,89 @@ export const create_label = async (req: Request, res: Response) => {
 
 
 export const delete_label = async (req: Request, res: Response) => {
-    const transaction : Transaction = await db.sequelize.transaction();
+    const transaction: Transaction = await db.sequelize.transaction();
     const mongo_client = new MongoClient(uri);
-    try{
+    try {
         await mongo_client.connect();
         const mongo = mongo_client.db('care-label');
         const collection = mongo.collection<Label>('labels');
 
-        const label = await db.labels.findByPk(req.params.id,{ transaction });
+        const label = await db.labels.findByPk(req.params.id, { transaction });
 
-        if (!label){
-            res.status(StatusCodes.NOT_FOUND).send({message: `label with id ${req.params.id} not found`});
+        if (!label) {
+            res.status(StatusCodes.NOT_FOUND).send({ message: `label with id ${req.params.id} not found` });
         }
-        else{
-            if (label.UserID !== req.body.User.UserID){
-                res.status(StatusCodes.FORBIDDEN).send({message: `forbidden operation`});
+        else {
+            if (label.UserID !== req.body.User.UserID) {
+                res.status(StatusCodes.FORBIDDEN).send({ message: `forbidden operation` });
             }
-            else{
-                await collection.deleteOne({_id: new ObjectId(label.DocumentID)})
-                await label.destroy({transaction})
+            else {
+                // Get the current image URL from MongoDB
+                const document = await collection.findOne({ _id: new ObjectId(label.DocumentID) });
+                if (document && document.label_data.ImageURL) {
+                    const imageUrl = document.label_data.ImageURL;
+                    // Extract file name from the URL
+                    const fileName = imageUrl.split("/").pop(); // Get the last part of the URL
+                    if (!fileName) {
+                        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Failed to extract file name" });
+                        return;
+                    }
+                    // Delete the file from Google Cloud Storage
+                    const file = bucket.file(`logos/${fileName}`);
+                    await file.delete();
+                }
+
+                await collection.deleteOne({ _id: new ObjectId(label.DocumentID) })
+                await label.destroy({ transaction })
                 await transaction.commit();
-                res.status(StatusCodes.OK).send({message: `label with id ${req.params.id} deleted`});
+                res.status(StatusCodes.OK).send({ message: `label with id ${req.params.id} deleted` });
             }
         }
     }
-    catch(error : any){
+    catch (error: any) {
         await transaction.rollback();
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: error.message });
-    }finally{
+    } finally {
         await mongo_client.close();
     }
 }
 
 export const get_label_by_id = async (req: Request, res: Response) => {
     const mongo_client = new MongoClient(uri);
-    try{
+    try {
         await mongo_client.connect();
         const mongo = mongo_client.db('care-label');
         const collection = mongo.collection<Label>('labels');
 
         const label = await db.labels.findByPk(req.params.id);
-        if (!label){
-            res.status(StatusCodes.NOT_FOUND).send({message:`label with id: ${req.params.id} not found`})
+        if (!label) {
+            res.status(StatusCodes.NOT_FOUND).send({ message: `label with id: ${req.params.id} not found` })
         }
-        else{
-            if (label.UserID !== req.body.User.UserID){
-                res.status(StatusCodes.FORBIDDEN).send({message: `forbidden operation`});
+        else {
+            if (label.UserID !== req.body.User.UserID) {
+                res.status(StatusCodes.FORBIDDEN).send({ message: `forbidden operation` });
             }
-            else{
-                const result = await collection.findOne({_id: new ObjectId(label.DocumentID)});
-                res.status(StatusCodes.OK).send({...result,createdAt:label.createdAt,updatedAt:label.updatedAt});
+            else {
+                const result = await collection.findOne({ _id: new ObjectId(label.DocumentID) });
+                res.status(StatusCodes.OK).send({ ...result, createdAt: label.createdAt, updatedAt: label.updatedAt });
             }
         }
     }
-    catch(error : any){
+    catch (error: any) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: error.message });
-    }finally{
+    } finally {
         await mongo_client.close();
     }
 }
 
 export const get_labels_by_user_id = async (req: Request, res: Response) => {
     const mongo_client = new MongoClient(uri);
-    try{
+    try {
         await mongo_client.connect();
         const mongo = mongo_client.db('care-label');
         const collection = mongo.collection<Label>('labels');
 
-        const labels = await db.labels.findAll({where:{UserID: req.body.User.UserID}});
+        const labels = await db.labels.findAll({ where: { UserID: req.body.User.UserID } });
 
         const documentIds = labels.map(label => new ObjectId(label.DocumentID));
 
@@ -170,9 +185,9 @@ export const get_labels_by_user_id = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).send(mergedResults);
     }
-    catch(error : any){
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: error.message});
-    }finally{
+    catch (error: any) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: error.message });
+    } finally {
         await mongo_client.close();
     }
 }
@@ -190,12 +205,12 @@ export const update_label = async (req: Request, res: Response) => {
         if (!label) {
             res.status(StatusCodes.NOT_FOUND).send({ message: `Label with id ${req.params.id} not found` });
         }
-        else{
+        else {
 
             if (label.UserID !== req.body.User.UserID) {
                 res.status(StatusCodes.FORBIDDEN).send({ message: `Forbidden operation` });
             }
-            else{
+            else {
                 const mongoUpdateResult = await collection.updateOne(
                     { _id: new ObjectId(label.DocumentID) },
                     { $set: req.body.label_data }
@@ -204,7 +219,7 @@ export const update_label = async (req: Request, res: Response) => {
                 if (mongoUpdateResult.matchedCount === 0) {
                     res.status(StatusCodes.NOT_FOUND).send({ message: `Document not found in MongoDB` });
                 }
-                else{
+                else {
                     res.status(StatusCodes.OK).send({ message: `Label updated successfully` });
                 }
             }
@@ -228,55 +243,74 @@ export const upload_logo = async (req: Request, res: Response) => {
         // Validate request file
         if (!req.file) {
             res.status(StatusCodes.BAD_REQUEST).json({ message: "No file uploaded" });
-            return 
         }
+        else {
+            // Find label by ID
+            const label = await db.labels.findByPk(req.params.id, { transaction });
+            if (!label) {
+                res.status(StatusCodes.BAD_REQUEST).json({ message: `No label with ID ${req.params.id}` });
+            }
+            else {
+                const token = await req.cookies?.care_label_app_token;
+                Jwt.verify(token, process.env.SECRET_KEY as string, (error: Jwt.VerifyErrors | null, user: any | string | undefined) => {
+                    if (error) {
+                        console.error("JWT Verification Error:", error.message);
+                        res.status(403).send({ error: error.message });
+                        return;
+                    }
 
-        // Find label by ID
-        let label = await db.labels.findByPk(req.params.id, { transaction });
-        if (!label) {
-            res.status(StatusCodes.BAD_REQUEST).json({ message: `No label with ID ${req.params.id}` });
-            return 
+                    if (user) {
+                        if (label.UserID !== user.UserID) {
+                            res.status(StatusCodes.FORBIDDEN).json({ message: `Forbidden action` });
+                            return
+                        }
+                    }
+                });
+
+
+
+                const document = await collection.findOne({ _id: new ObjectId(label.DocumentID) });
+                if (!document) {
+                    res.status(StatusCodes.BAD_REQUEST).json({ message: "No label found" });
+                    return;
+                }
+                else {
+                    if (document.ImageURL) {
+                        const imageUrl = document.ImageURL;
+                        // Extract file name from the URL
+                        const fileNameTemp = imageUrl.split("/").pop(); // Get the last part of the URL
+                        if (fileNameTemp) {
+                            // Delete the file from Google Cloud Storage
+                            const fileTemp = bucket.file(`logos/${fileNameTemp}`);
+                            await fileTemp.delete();
+                        }
+                    }
+                }
+
+                // Generate hash for the file (SHA-256)
+                const fileBuffer = req.file.buffer;
+                // const hash = createHash("sha256").update(fileBuffer).digest("hex");
+
+                const fileName = `logos/${Date.now()}-${req.file.originalname}`;
+                const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+
+                const file = bucket.file(fileName);
+                await file.save(fileBuffer, { metadata: { contentType: req.file.mimetype } });
+                await file.makePublic();
+
+                // Update ImageURL in MongoDB
+                await collection.updateOne(
+                    { _id: new ObjectId(label.DocumentID) },
+                    { $set: { ImageURL: publicUrl } }
+                );
+
+                // Commit transaction
+                await transaction.commit();
+
+                res.status(StatusCodes.OK).send({ message: "Logo successfully uploaded", url: publicUrl });
+
+            }
         }
-
-        // Generate hash for the file (SHA-256)
-        const fileBuffer = req.file.buffer;
-        const hash = createHash("sha256").update(fileBuffer).digest("hex");
-        const fileExtension = req.file.originalname.split(".").pop();
-        const fileName = `logos/${hash}.${fileExtension}`;
-        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-        if (label.LogoID === hash){
-            res.status(StatusCodes.OK).json({ message: `label id ${req.params.id} already has this logo` });
-            return 
-        }
-
-        // Check if logo already exists
-        let logoRef = await db.logos.findByPk(hash, { transaction });
-
-        if (logoRef) {
-            await logoRef.increment("References", { transaction });
-        } else {
-            // Create a new logo entry
-            logoRef = await db.logos.create({ LogoID: hash, References: 1 }, { transaction });
-
-            // Upload new logo file to Firebase Storage
-            const file = bucket.file(fileName);
-            await file.save(fileBuffer, { metadata: { contentType: req.file.mimetype } });
-            await file.makePublic();
-        }
-        label.LogoID = hash;
-        await label.save({transaction})
-
-        // Update ImageURL in MongoDB
-        await collection.updateOne(
-            { _id: new ObjectId(label.DocumentID) },
-            { $set: { ImageURL: publicUrl } }
-        );
-
-        // Commit transaction
-        await transaction.commit();
-
-        res.status(StatusCodes.OK).send({ message: "Logo successfully uploaded", url: publicUrl });
     } catch (error: any) {
         await transaction.rollback();
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Upload failed", error: error.message });
@@ -288,25 +322,51 @@ export const upload_logo = async (req: Request, res: Response) => {
 export const remove_image_url = async (req: Request, res: Response) => {
     const mongo_client = new MongoClient(uri);
     const transaction: Transaction = await db.sequelize.transaction();
+
     try {
         await mongo_client.connect();
         const mongo = mongo_client.db("care-label");
         const collection = mongo.collection("labels");
 
+        // Find the label in SQL
         let label = await db.labels.findByPk(req.params.id, { transaction });
         if (!label) {
             res.status(StatusCodes.BAD_REQUEST).json({ message: `No label with ID ${req.params.id}` });
-            return 
+            return;
         }
 
-        // label.LogoID = "";
-        // await label.save({transaction})
+        if (label.UserID !== req.body.User.UserID) {
+            res.status(StatusCodes.FORBIDDEN).json({ message: `Forbidden action` });
+            return;
+        }
 
+        // Get the current image URL from MongoDB
+        const document = await collection.findOne({ _id: new ObjectId(label.DocumentID) });
+        if (!document || !document.ImageURL) {
+            res.status(StatusCodes.BAD_REQUEST).json({ message: "No image found for this label" });
+            return;
+        }
+
+        const imageUrl = document.ImageURL;
+
+        // Extract file name from the URL
+        const fileName = imageUrl.split("/").pop(); // Get the last part of the URL
+        if (!fileName) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Failed to extract file name" });
+            return;
+        }
+
+        // Delete the file from Google Cloud Storage
+        const file = bucket.file(`logos/${fileName}`);
+        await file.delete();
+
+        // Remove the image URL from MongoDB
         await collection.updateOne(
             { _id: new ObjectId(label.DocumentID) },
             { $set: { ImageURL: "" } }
         );
 
+        // Commit the transaction
         await transaction.commit();
 
         res.status(StatusCodes.OK).send({ message: "Logo successfully removed" });
@@ -317,4 +377,4 @@ export const remove_image_url = async (req: Request, res: Response) => {
     } finally {
         await mongo_client.close();
     }
-}
+};

@@ -236,7 +236,7 @@ const Dashboard = () => {
 
                     <Divider sx={{ width: '100%', mt: 2 }} />
                 </Box>
-
+                { savedSets.length !== 0 ?
                 <Box
                     sx={{
                         display: 'flex',
@@ -287,6 +287,25 @@ const Dashboard = () => {
                             </Card>
                         ))}
                 </Box>
+                :
+                <Box
+                    sx={{
+                        display:'flex',
+                        justifyContent:'center',
+                        alignItems:'center',
+                        minHeight:'90vh'
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontSize: 30,
+                            opacity: 0.3
+                        }}
+                    >
+                        No Labels Saved
+                    </Typography>
+                </Box>
+                }
 
             </Box>
             {notification &&

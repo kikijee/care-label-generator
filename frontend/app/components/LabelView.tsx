@@ -131,23 +131,38 @@ export const LabelView = ({ id }: { id?: number }) => {
         };
         const response = await save_label(body);
 
-        let response_label = {status:200,message:''}
+        
         if (pendingData?.logoFormData){
-            response_label = await upload_logo(pendingData.logoFormData, response.data.sql.LabelID);
+            const response_label = await upload_logo(pendingData.logoFormData, response.data.sql.LabelID);
+
+            if (response.status === 201 && response_label.status === 200) {
+                setNotificationStatus(true)
+                setNotification(true)
+                setNotificationMessage("Save Success");
+                console.log(response.data);
+            }
+            else {
+                setNotificationStatus(false)
+                setNotification(true)
+                setNotificationMessage("Save Failure");
+                console.error("error in label save", response.data.message, response_label.data);
+            }
+        }
+        else{
+            if (response.status === 201) {
+                setNotificationStatus(true)
+                setNotification(true)
+                setNotificationMessage("Save Success");
+                console.log(response.data);
+            }
+            else {
+                setNotificationStatus(false)
+                setNotification(true)
+                setNotificationMessage("Save Failure");
+                console.error("error in label save", response.data.message);
+            }
         }
         
-        if (response.status === 201 &&  response_label.status === 200) {
-            setNotificationStatus(true)
-            setNotification(true)
-            setNotificationMessage("Save Success");
-            console.log(response.data);
-        }
-        else {
-            setNotificationStatus(false)
-            setNotification(true)
-            setNotificationMessage("Save Failure");
-            console.error("error in label save", response.data.message, response_label.message);
-        }
     }
 
     const handleLabelUpdate = async () => {
@@ -178,7 +193,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                 }
             };
             const response = await update_label(body, id);
-            let response_label = {status:200,message:''};
+            let response_label = {status:200,data:{}};
 
             if (pendingData?.logoFormData){
                 response_label = await upload_logo(pendingData.logoFormData, id);
@@ -199,7 +214,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                 setNotificationStatus(false)
                 setNotification(true)
                 setNotificationMessage("Save Failure");
-                console.error("error in label save", response.data.message);
+                console.error("error in label save", response.data.message, response_label.data);
             }
         }
     }
@@ -330,7 +345,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                         sm: 'column',
                         xs: 'column'
                     },
-                    gap: 5,
+                    gap: 0,
                     pt: { xl: 8, lg: 8, md: 8, sm: 7, xs: 7 },
                 }}
             >
@@ -340,7 +355,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                         sx={{
                             bgcolor: "#212121",
                             minHeight: '100vh',
-                            width:'100%',
+                            minWidth:'50%',
                             borderRight: 1,
                             borderColor: 'divider',
                         }}

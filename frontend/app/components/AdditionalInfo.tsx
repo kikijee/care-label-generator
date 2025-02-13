@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, Button, IconButton } from "@mui/material"
+import { Box, Typography, TextField, Button, IconButton, Autocomplete } from "@mui/material"
 import { usePendingData, usePendingDataDispatch } from "../context/CareEditorContext"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
@@ -88,15 +88,25 @@ export const AdditionalInfo = () => {
                     p: 4
                 }}
             >
-                <TextField
-                    helperText="enter RN number"
-                    value={pendingData?.rnNumber}
-                    onChange={(e) => { handleRnChange(e.target.value) }}
-                    sx={{
-                        width: '250px'
-                    }}
-                >
-                </TextField>
+                <Autocomplete
+                    freeSolo // Allows custom input
+                    options={
+                        JSON.parse(sessionStorage.getItem('care-label-user') as string).user.RnNumber ?
+                            [JSON.parse(sessionStorage.getItem('care-label-user') as string).user.RnNumber]
+                            :
+                            []
+                    }
+                    value={pendingData?.rnNumber || ""}
+                    onChange={(_, newValue) => handleRnChange(newValue)}
+                    onInputChange={(_, newValue) => handleRnChange(newValue)}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            helperText="enter RN"
+                            sx={{ width: "250px" }}
+                        />
+                    )}
+                />
             </Box>
 
             <Box
@@ -118,15 +128,25 @@ export const AdditionalInfo = () => {
                     p: 4
                 }}
             >
-                <TextField
-                    helperText="enter address"
-                    value={pendingData?.address}
-                    onChange={(e) => { handleAddressChange(e.target.value) }}
-                    sx={{
-                        width: '250px'
-                    }}
-                >
-                </TextField>
+                <Autocomplete
+                    freeSolo // Allows custom input
+                    options={
+                        JSON.parse(sessionStorage.getItem('care-label-user') as string).user.Address ?
+                            [JSON.parse(sessionStorage.getItem('care-label-user') as string).user.Address]
+                            :
+                            []
+                    }
+                    value={pendingData?.address || ""}
+                    onChange={(_, newValue) => handleAddressChange(newValue)}
+                    onInputChange={(_, newValue) => handleAddressChange(newValue)}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            helperText="enter address"
+                            sx={{ width: "250px" }}
+                        />
+                    )}
+                />
             </Box>
 
             <Box
@@ -148,15 +168,25 @@ export const AdditionalInfo = () => {
                     p: 4
                 }}
             >
-                <TextField
-                    helperText="enter website"
-                    value={pendingData?.website}
-                    onChange={(e) => { handleWebsiteChange(e.target.value) }}
-                    sx={{
-                        width: '250px'
-                    }}
-                >
-                </TextField>
+                <Autocomplete
+                    freeSolo // Allows custom input
+                    options={
+                        JSON.parse(sessionStorage.getItem('care-label-user') as string).user.Website ?
+                            [JSON.parse(sessionStorage.getItem('care-label-user') as string).user.Website]
+                            :
+                            []
+                    }
+                    value={pendingData?.website || ""}
+                    onChange={(_, newValue) => handleWebsiteChange(newValue)}
+                    onInputChange={(_, newInputValue) => handleWebsiteChange(newInputValue)}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            helperText="enter website"
+                            sx={{ width: "250px" }}
+                        />
+                    )}
+                />
             </Box>
 
             <Box
@@ -197,12 +227,13 @@ export const AdditionalInfo = () => {
                     sx={{
                         display: 'flex',
                         justifyContent: "center",
-                        alignItems:'center',
-                        flexDirection: "row",
-                        gap:20,
-                        pt:4,
-                        borderTop:1,
-                        borderColor:'divider'
+                        alignItems: 'center',
+                        flexDirection: { xl: 'row', lg: 'row', md: 'row', sm: 'column', xs: 'column' },
+                        gap: { xl: 20, lg: 5, md: 15, sm: 10, xs: 10 },
+                        pt: 4,
+                        pb: { xl: 0, lg: 2, md: 2, sm: 2, xs: 2 },
+                        borderTop: 1,
+                        borderColor: 'divider'
                     }}
                 >
                     <Box>
@@ -213,7 +244,7 @@ export const AdditionalInfo = () => {
                             }}
                         >
                             <IconButton
-                                onClick={() => {dispatch?.setLogo(""); dispatch?.setLogoFormData(null);}}
+                                onClick={() => { dispatch?.setLogo(""); dispatch?.setLogoFormData(null); }}
                             >
                                 <ClearIcon />
                             </IconButton>
@@ -224,7 +255,7 @@ export const AdditionalInfo = () => {
                                 justifyContent: "center",
                             }}
                         >
-                            <img src={pendingData.logo} alt="Uploaded Preview" style={{ marginTop: 10, width: 100, height: "auto" }} />
+                            <img src={pendingData.logo} alt="Uploaded Preview" style={{ marginTop: 10, width: 150, height: "auto" }} />
                         </Box>
                     </Box>
                     <Box>
@@ -244,16 +275,16 @@ export const AdditionalInfo = () => {
                                 display: 'flex',
                                 justifyContent: "center",
                                 gap: 5,
-                                pt:1
+                                pt: 1
                             }}
                         >
                             <TextField
                                 helperText="enter logo size"
                                 type="number"
                                 value={pendingData?.logoSize}
-                                onChange={(e) => {handleLogoSizeChange(e.target.value)}}
+                                onChange={(e) => { handleLogoSizeChange(e.target.value) }}
                                 sx={{
-                                    width: '250px'
+                                    width: '200px'
                                 }}
                                 slotProps={{
                                     input: {
@@ -267,7 +298,7 @@ export const AdditionalInfo = () => {
                             sx={{
                                 display: "flex",
                                 justifyContent: "center",
-                                pt:1
+                                pt: 1
                             }}
                         >
                             <Typography>
@@ -280,16 +311,16 @@ export const AdditionalInfo = () => {
                                 display: 'flex',
                                 justifyContent: "center",
                                 gap: 5,
-                                pt:1
+                                pt: 1
                             }}
                         >
                             <TextField
                                 helperText="enter top margin"
                                 type="number"
                                 value={pendingData?.logoMarginTop}
-                                onChange={(e) => {handleLogoMarginTopChange(e.target.value)}}
+                                onChange={(e) => { handleLogoMarginTopChange(e.target.value) }}
                                 sx={{
-                                    width: '250px'
+                                    width: '200px'
                                 }}
                                 slotProps={{
                                     input: {
@@ -303,7 +334,7 @@ export const AdditionalInfo = () => {
                             sx={{
                                 display: "flex",
                                 justifyContent: "center",
-                                pt:1
+                                pt: 1
                             }}
                         >
                             <Typography>
@@ -316,16 +347,16 @@ export const AdditionalInfo = () => {
                                 display: 'flex',
                                 justifyContent: "center",
                                 gap: 5,
-                                pt:1
+                                pt: 1
                             }}
                         >
                             <TextField
                                 helperText="enter bottom margin"
                                 type="number"
                                 value={pendingData?.logoMarginBottom}
-                                onChange={(e) => {handleLogoMarginBottomChange(e.target.value)}}
+                                onChange={(e) => { handleLogoMarginBottomChange(e.target.value) }}
                                 sx={{
-                                    width: '250px'
+                                    width: '200px'
                                 }}
                                 slotProps={{
                                     input: {
