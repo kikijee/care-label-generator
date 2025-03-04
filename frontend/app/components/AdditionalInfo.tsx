@@ -288,7 +288,7 @@ export const AdditionalInfo = () => {
                                 }}
                                 slotProps={{
                                     input: {
-                                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                                     },
                                 }}
                             />
@@ -324,7 +324,7 @@ export const AdditionalInfo = () => {
                                 }}
                                 slotProps={{
                                     input: {
-                                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                                     },
                                 }}
                             />
@@ -360,7 +360,7 @@ export const AdditionalInfo = () => {
                                 }}
                                 slotProps={{
                                     input: {
-                                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                                     },
                                 }}
                             />

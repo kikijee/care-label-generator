@@ -56,9 +56,9 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [fiberContent, setFiberContent] = useState([{ material: 0, percentage: "Select" }]);
     const [careInstructionsList, setCareInstructionsList] = useState<number[]>([0]);
     const [cooIndex, setCooIndex] = useState<number>(0);
-    const [x,setX] = useState<number>(1.18);
-    const [y,setY] = useState<number>(2.36);
-    const [seamGap, setSeamGap] = useState<number>(0.25);
+    const [x,setX] = useState<number>(29.972);
+    const [y,setY] = useState<number>(59.944);
+    const [seamGap, setSeamGap] = useState<number>(6.35);
     const [zoom, setZoom] = useState<number>(75);
     const [fontSize, setFontSize] = useState<number>(6);
     const [rnNumber, setRnNumber] = useState<string>("");
@@ -67,7 +67,7 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [alignment, setAlignment] = useState<string>("Left");
     const [marginLeft, setMarginLeft] = useState<number>(0);
     const [logo, setLogo] = useState<string>("");
-    const [logoSize, setLogoSize] = useState<number>(0.2);
+    const [logoSize, setLogoSize] = useState<number>(5);
     const [logoMarginTop, setLogoMarginTop] = useState<number>(0);
     const [logoMarginBottom, setLogoMarginBottom] = useState<number>(0);
     const [logoFormData, setLogoFormData] = useState<FormData | null>(null);

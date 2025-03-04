@@ -63,7 +63,7 @@ export const Measurements = () => {
                     }}
                     slotProps={{
                         input: {
-                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                         },
                     }}
                 />
@@ -94,7 +94,7 @@ export const Measurements = () => {
                     onChange={(e) => { handleXChange(e.target.value) }}
                     slotProps={{
                         input: {
-                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                         },
                     }}
                 />
@@ -105,7 +105,7 @@ export const Measurements = () => {
                     onChange={(e) => { handleYChange(e.target.value) }}
                     slotProps={{
                         input: {
-                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                         },
                     }}
                 />
@@ -216,7 +216,7 @@ export const Measurements = () => {
                     }}
                     slotProps={{
                         input: {
-                            endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                         },
                     }}
                 />

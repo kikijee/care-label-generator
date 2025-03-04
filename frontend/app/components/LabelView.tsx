@@ -18,6 +18,7 @@ import LabelSaveDialog from "@/app/components/LabelSaveDialog";
 import Notification from "@/app/components/Notification";
 import { get_label_by_id } from "@/app/api-service/label";
 import SaveIcon from '@mui/icons-material/Save';
+import { millimetersToPixels } from "../util/num-convert";
 
 
 export const LabelView = ({ id }: { id?: number }) => {
@@ -41,27 +42,68 @@ export const LabelView = ({ id }: { id?: number }) => {
 
 
     const generateLabels = () => {
+
         const newLabels: { content: string[] }[] = [];
         let currentLabel: string[] = [];
-        let currentHeight = 0; // Track accumulated height
+        let currentHeight = millimetersToPixels(pendingData?.seamGap || 6);
+        const maxLabelWidth = millimetersToPixels(pendingData?.x || 30);
+        const maxLabelHeight = millimetersToPixels(pendingData?.y || 60);
+        if (pendingData?.logo) {
+            currentHeight += millimetersToPixels(pendingData.logoSize);
+        }
+        if (pendingData?.logoMarginBottom) {
+            currentHeight += millimetersToPixels(pendingData.logoMarginBottom);
+        }
+        if (pendingData?.logoMarginTop) {
+            currentHeight += millimetersToPixels(pendingData.logoMarginTop);
+        }
 
-        const maxLabelHeight = ((pendingData?.y || 2.36) * 96); // Define label height limit
+        const getTextMetrics = (text: string, fontSize = `${pendingData?.fontSize}pt`, fontFamily = 'monospace') => {
+            const div = document.createElement("div");
+            div.style.position = "absolute";
+            div.style.visibility = "hidden";
+            div.style.whiteSpace = "pre-wrap";
+            div.style.wordBreak = "break-word";
+            div.style.width = `${maxLabelWidth}px`;
+            div.style.fontSize = fontSize;
+            div.style.fontFamily = fontFamily;
+            div.style.lineHeight = "1.5"; // MUI defualt
+            div.textContent = text;
+
+            document.body.appendChild(div);
+            const dimensions = { width: div.offsetWidth, height: div.offsetHeight };
+            document.body.removeChild(div);
+
+            return dimensions;
+        };
+
+        if (pendingData?.rnNumber) {
+            const { width: _, height: textHeight } = getTextMetrics(pendingData.rnNumber)
+            currentHeight += textHeight
+        }
+        if (pendingData?.address) {
+            const { width: _, height: textHeight } = getTextMetrics(pendingData.address)
+            currentHeight += textHeight
+        }
+        if (pendingData?.website) {
+            const { width: _, height: textHeight } = getTextMetrics(pendingData.website)
+            currentHeight += textHeight
+        }
 
         const addTextToLabel = (text: string) => {
-            const len = text.length * 1.3333
-            const maxWidth = (pendingData?.x || 1.18) * 96
-            const rows = Math.floor(maxWidth / len) + 1
-            const estimatedTextHeight = rows * 1.3333; // Approximate height per text line
 
-            if (currentHeight + estimatedTextHeight > maxLabelHeight) {
-                // If adding this text overflows, push current label and start a new one
+            const { width: _, height: textHeight } = getTextMetrics(text)
+
+            if (currentHeight + textHeight > maxLabelHeight) {
                 newLabels.push({ content: currentLabel });
                 currentLabel = [];
-                currentHeight = 0;
+                currentHeight = millimetersToPixels(pendingData?.seamGap || 6);
             }
 
             currentLabel.push(text);
-            currentHeight += estimatedTextHeight;
+            currentHeight += textHeight;
+            console.log("current height: ", textHeight)
+            console.log("max: ", maxLabelHeight)
         };
 
         // Add COO information
@@ -90,16 +132,15 @@ export const LabelView = ({ id }: { id?: number }) => {
         });
 
         // Add RN number, Address, Website
-        if (pendingData?.rnNumber) addTextToLabel(`RN ${pendingData?.rnNumber}`);
-        if (pendingData?.address) addTextToLabel(pendingData?.address);
-        if (pendingData?.website) addTextToLabel(pendingData?.website);
+        // if (pendingData?.rnNumber) addTextToLabel(`RN ${pendingData?.rnNumber}`);
+        // if (pendingData?.address) addTextToLabel(pendingData?.address);
+        // if (pendingData?.website) addTextToLabel(pendingData?.website);
 
         // Push last label if it has content
         if (currentLabel.length > 0) {
             newLabels.push({ content: currentLabel });
         }
 
-        console.log("here")
         setLabels(newLabels);
     };
 
@@ -519,24 +560,65 @@ export const LabelView = ({ id }: { id?: number }) => {
                                             sx={{
                                                 display: 'flex',
                                                 flexDirection: 'column',
-                                                width: ((pendingData?.x || 1.18) * 96) * (((pendingData?.zoom || 75) * 0.01) + 1),
-                                                minHeight: ((pendingData?.y || 2.36) * 96) * (((pendingData?.zoom || 75) * 0.01) + 1),
+                                                width: millimetersToPixels(pendingData?.x || 29.972) * (((pendingData?.zoom || 75) * 0.01) + 1),
+                                                minHeight: millimetersToPixels(pendingData?.y || 59.944) * (((pendingData?.zoom || 75) * 0.01) + 1),
                                                 bgcolor: 'white',
-                                                paddingTop: `${((pendingData?.seamGap || 0.25) * 96) * (((pendingData?.zoom || 75) * 0.01) + 1)}px`,
+                                                paddingTop: `${millimetersToPixels(pendingData?.seamGap || 6.35) * (((pendingData?.zoom || 75) * 0.01) + 1)}px`,
                                             }}
                                         >
-                                            {pendingData?.logo && (
-                                                <Box sx={{ display: 'flex', justifyContent: "center", pt: `${(pendingData.logoMarginTop * 96) * ((pendingData.zoom * 0.01) + 1)}px`, pb: `${(pendingData.logoMarginBottom * 96) * ((pendingData.zoom * 0.01) + 1)}px` }}>
-                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ width: `${((pendingData.logoSize * 96) * ((pendingData.zoom * 0.01) + 1))}px`, height: "auto" }} />
+                                            {pendingData?.logo && i === 0 && (
+                                                <Box sx={{ display: 'flex', justifyContent: "center", pt: `${millimetersToPixels(pendingData.logoMarginTop) * ((pendingData.zoom * 0.01) + 1)}px`, pb: `${millimetersToPixels(pendingData.logoMarginBottom) * ((pendingData.zoom * 0.01) + 1)}px` }}>
+                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ height: `${(millimetersToPixels(pendingData.logoSize) * ((pendingData.zoom * 0.01) + 1))}px`, width: "auto" }} />
                                                 </Box>
                                             )}
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start', textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left', paddingLeft: `${((pendingData?.marginLeft || 0) * 96) * ((pendingData?.marginLeft || 0) * 0.01 + 1)}px` }}>
+                                            
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start', textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left', paddingLeft: `${millimetersToPixels(pendingData?.marginLeft || 0) * ((pendingData?.marginLeft || 0) * 0.01 + 1)}px` }}>
                                                 {label.content.map((text, index) => (
                                                     <Typography key={index} sx={{ color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt` }}>
                                                         {text}
                                                     </Typography>
                                                 ))}
                                             </Box>
+                                            { i === 0 && (
+                                                <Box
+                                                    sx={{
+                                                        marginTop: 'auto',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start',
+                                                        textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                        paddingLeft: `${millimetersToPixels(pendingData?.marginLeft || 0) * ((pendingData?.marginLeft || 0) * 0.01 + 1)}px`,
+                                                    }}
+                                                > {/* Ensures bottom alignment */}
+                                                    {pendingData?.rnNumber &&
+                                                        <Typography
+                                                            sx={{
+                                                                color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`
+                                                            }}
+                                                        >
+                                                            {`RN ${pendingData?.rnNumber}`}
+                                                        </Typography>
+                                                    }
+                                                    {pendingData?.address &&
+                                                        <Typography
+                                                            sx={{
+                                                                color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`
+                                                            }}
+                                                        >
+                                                            {pendingData?.address}
+                                                        </Typography>
+                                                    }
+                                                    {pendingData?.website &&
+                                                        <Typography
+                                                            sx={{
+                                                                color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`
+                                                            }}
+                                                        >
+                                                            {pendingData?.website}
+                                                        </Typography>
+                                                    }
+                                                </Box>
+                                            )}
                                         </Box>
                                     </Box>
                                 ))}
