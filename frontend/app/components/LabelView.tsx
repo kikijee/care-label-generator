@@ -1,7 +1,7 @@
 'use client'
 import { Box, Typography, CssBaseline, Container, SpeedDial, SpeedDialAction, TextField, Divider } from "@mui/material"
 import { materials, careInstructions, coo } from "@/public/data/data"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import VerticalTabs from "@/app/components/VerticalTabs";
 import { usePendingData, usePendingDataDispatch } from "@/app/context/CareEditorContext";
