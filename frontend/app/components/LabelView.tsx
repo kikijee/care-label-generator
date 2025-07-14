@@ -19,6 +19,7 @@ import Notification from "@/app/components/Notification";
 import { get_label_by_id } from "@/app/api-service/label";
 import SaveIcon from '@mui/icons-material/Save';
 import { millimetersToPixels } from "../util/num-convert";
+import { language_ind } from "@/public/data/data";
 
 
 export const LabelView = ({ id }: { id?: number }) => {
@@ -46,6 +47,7 @@ export const LabelView = ({ id }: { id?: number }) => {
         const newLabels: { content: string[] }[] = [];
         let currentLabel: string[] = [];
         let currentHeight = millimetersToPixels(pendingData?.seamGap || 6);
+        currentHeight += millimetersToPixels(pendingData?.additionalInfoPt || 0);
         const maxLabelWidth = millimetersToPixels(pendingData?.x || 30);
         const maxLabelHeight = millimetersToPixels(pendingData?.y || 60);
         if (pendingData?.logo) {
@@ -102,8 +104,6 @@ export const LabelView = ({ id }: { id?: number }) => {
 
             currentLabel.push(text);
             currentHeight += textHeight;
-            console.log("current height: ", textHeight)
-            console.log("max: ", maxLabelHeight)
         };
 
         // Add COO information
@@ -114,21 +114,33 @@ export const LabelView = ({ id }: { id?: number }) => {
         }
 
         // Add Fiber Content
-        pendingData?.fiberContent.forEach(fiber => {
-            if (fiber.material !== 0 && fiber.percentage !== 'Select') {
-                pendingData?.selectedLanguages.forEach(lang => {
-                    addTextToLabel(`${fiber.percentage} ${materials[lang.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}`);
-                });
-            }
+        pendingData?.selectedLanguages.forEach((lang) => {
+            pendingData?.fiberContent.forEach((fiber, i) => {
+                if (fiber.material !== 0 && fiber.percentage !== 'Select') {
+                    if (i === 0 && pendingData.fiberContentLangInd) {
+                        addTextToLabel(`${language_ind[lang.toLowerCase().replace(' ', '_') as keyof typeof materials]}: ${fiber.percentage} ${materials[lang.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}`);
+                    }
+                    else {
+                        addTextToLabel(`${fiber.percentage} ${materials[lang.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}`);
+                    }
+                }
+            });
         });
 
         // Add Care Instructions
-        pendingData?.careInstructionsList.forEach(care => {
-            if (care !== 0) {
-                pendingData?.selectedLanguages.forEach(lang => {
-                    addTextToLabel(careInstructions[lang.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]);
-                });
-            }
+        pendingData?.selectedLanguages.forEach((lang) => {
+            pendingData?.careInstructionsList.forEach((care, i) => {
+                if (care !== 0) {
+
+                    if (i === 0 && pendingData.careInstructionLangInd) {
+                        addTextToLabel(`${language_ind[lang.toLowerCase().replace(' ', '_') as keyof typeof materials]}: ${careInstructions[lang.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}`);
+                    }
+                    else {
+                        addTextToLabel(`${careInstructions[lang.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}`);
+                    }
+
+                }
+            });
         });
 
         // Add RN number, Address, Website
@@ -168,6 +180,9 @@ export const LabelView = ({ id }: { id?: number }) => {
                     dispatch?.setLogoMarginTop(response.data.Measurements.LogoMarginTop);
                     dispatch?.setLogoMarginBottom(response.data.Measurements.LogoMarginBottom);
                     dispatch?.setLogo(response.data.ImageURL)
+                    dispatch?.setCareInstructionLangInd(response.data.CareInstructionLangInd || false)
+                    dispatch?.setFiberContentLangInd(response.data.FiberContentLangInd || false)
+                    dispatch?.setAdditionalInfoPt(response.data.AdditionalInfo.AdditionalInfoPt || 0);
                     setLoading(false);
                     console.log(response.data)
                 }
@@ -234,10 +249,13 @@ export const LabelView = ({ id }: { id?: number }) => {
                 CountryOfOrigin: pendingData?.cooIndex,
                 FiberContent: pendingData?.fiberContent,
                 CareLabel: pendingData?.careInstructionsList,
+                FiberContentLangInd: pendingData?.fiberContentLangInd || false,
+                CareInstructionLangInd: pendingData?.careInstructionLangInd || false,
                 AdditionalInfo: {
                     RnNumber: pendingData?.rnNumber,
                     Address: pendingData?.address,
-                    Website: pendingData?.website
+                    Website: pendingData?.website,
+                    AdditionalInfoPt: pendingData?.additionalInfoPt
                 },
                 Languages: pendingData?.selectedLanguages,
             }
@@ -297,10 +315,13 @@ export const LabelView = ({ id }: { id?: number }) => {
                     CountryOfOrigin: pendingData?.cooIndex,
                     FiberContent: pendingData?.fiberContent,
                     CareLabel: pendingData?.careInstructionsList,
+                    FiberContentLangInd: pendingData?.fiberContentLangInd || false,
+                    CareInstructionLangInd: pendingData?.careInstructionLangInd || false,
                     AdditionalInfo: {
                         RnNumber: pendingData?.rnNumber,
                         Address: pendingData?.address,
-                        Website: pendingData?.website
+                        Website: pendingData?.website,
+                        AdditionalInfoPt: pendingData?.additionalInfoPt
                     },
                     Languages: pendingData?.selectedLanguages
                 }
@@ -571,15 +592,51 @@ export const LabelView = ({ id }: { id?: number }) => {
                                                     <img src={pendingData.logo} alt="Uploaded Preview" style={{ height: `${(millimetersToPixels(pendingData.logoSize) * ((pendingData.zoom * 0.01) + 1))}px`, width: "auto" }} />
                                                 </Box>
                                             )}
-                                            
+
                                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start', textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left', paddingLeft: `${millimetersToPixels(pendingData?.marginLeft || 0) * ((pendingData?.marginLeft || 0) * 0.01 + 1)}px` }}>
-                                                {label.content.map((text, index) => (
-                                                    <Typography key={index} sx={{ color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt` }}>
-                                                        {text}
-                                                    </Typography>
-                                                ))}
+                                                {label.content.map((text, index) => {
+                                                    const match = text.match(/^([A-Z]{2,3}):\s*(.*)$/);
+                                                    const lang = match ? match[1] : '';
+                                                    const content = match ? match[2] : text;
+
+                                                    return (
+                                                        <Box
+                                                            key={index}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'flex-start',
+                                                                textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                            }}
+                                                        >
+
+                                                            {lang ?
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: '#000',
+                                                                        fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`,
+                                                                        flex: 1,
+                                                                        textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                                    }}
+                                                                >
+                                                                    <b>{lang}</b>: {content}
+                                                                </Typography>
+                                                                :
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: '#000',
+                                                                        fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`,
+                                                                        flex: 1,
+                                                                        textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                                    }}
+                                                                >
+                                                                    {content}
+                                                                </Typography>
+                                                            }
+                                                        </Box>
+                                                    );
+                                                })}
                                             </Box>
-                                            { i === 0 && (
+                                            {i === 0 && (
                                                 <Box
                                                     sx={{
                                                         marginTop: 'auto',

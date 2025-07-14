@@ -2,6 +2,7 @@ import { Box, Typography, TextField, MenuItem, Button } from "@mui/material"
 import { usePendingData, usePendingDataDispatch } from "../context/CareEditorContext"
 import { materials } from "@/public/data/data"
 import { percentages } from "@/public/data/data"
+import { Checkbox, FormControlLabel } from "@mui/material";
 
 export const FiberContent = () => {
 
@@ -16,6 +17,10 @@ export const FiberContent = () => {
             dispatch?.setFiberContent(updated);
         }
     };
+
+    const handleIndChange =(event: React.ChangeEvent<HTMLInputElement>)=>{
+        dispatch?.setFiberContentLangInd(event.target.checked)
+    }
 
     const addFiberRow = () => {
         if(pendingData)
@@ -33,12 +38,19 @@ export const FiberContent = () => {
                 sx={{
                     display: "flex",
                     justifyContent: "center",
+                    alignItems:'center',
+                    flexDirection:'column',
                     pt: 5
                 }}
             >
                 <Typography>
                     FIBER CONTENT
                 </Typography>
+                <FormControlLabel
+                    control={<Checkbox checked={pendingData?.fiberContentLangInd} onChange={handleIndChange} />}
+                    label={"Language Indicator"}
+                    sx={{pt:2}}
+                />
             </Box>
             {pendingData?.fiberContent.map((data, i) => (
                 <Box

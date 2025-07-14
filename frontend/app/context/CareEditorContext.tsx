@@ -22,6 +22,9 @@ interface PendingDataContextType {
     logoMarginTop: number;
     logoMarginBottom: number;
     logoFormData: FormData | null;
+    fiberContentLangInd:boolean;
+    careInstructionLangInd:boolean;
+    additionalInfoPt:number;
 }
 
 export const PendingDataContext = createContext<PendingDataContextType | null>(null);
@@ -46,7 +49,9 @@ interface PendingDataDispatchType {
     setLogoMarginTop: React.Dispatch<React.SetStateAction<number>>;
     setLogoMarginBottom: React.Dispatch<React.SetStateAction<number>>;
     setLogoFormData: React.Dispatch<React.SetStateAction<FormData | null>>;
-
+    setFiberContentLangInd: React.Dispatch<React.SetStateAction<boolean>>;
+    setCareInstructionLangInd: React.Dispatch<React.SetStateAction<boolean>>;
+    setAdditionalInfoPt: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const PendingDataDispatchContext = createContext<PendingDataDispatchType | null>(null);
@@ -71,6 +76,9 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
     const [logoMarginTop, setLogoMarginTop] = useState<number>(0);
     const [logoMarginBottom, setLogoMarginBottom] = useState<number>(0);
     const [logoFormData, setLogoFormData] = useState<FormData | null>(null);
+    const [fiberContentLangInd,setFiberContentLangInd] = useState<boolean>(false);
+    const [careInstructionLangInd,setCareInstructionLangInd] = useState<boolean>(false);
+    const [additionalInfoPt, setAdditionalInfoPt] = useState<number>(0);
 
     const dispatch = {
         setSelectedLanguages,
@@ -91,7 +99,10 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         setLogoSize,
         setLogoMarginTop,
         setLogoMarginBottom,
-        setLogoFormData
+        setLogoFormData,
+        setFiberContentLangInd,
+        setCareInstructionLangInd,
+        setAdditionalInfoPt
     };
 
     const pendingData = {
@@ -113,7 +124,10 @@ export function CareLabelDataProvider({ children }: { children: React.ReactNode 
         logoSize,
         logoMarginTop,
         logoMarginBottom,
-        logoFormData
+        logoFormData,
+        fiberContentLangInd,
+        careInstructionLangInd,
+        additionalInfoPt
     };
 
     return (
