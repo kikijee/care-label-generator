@@ -96,9 +96,15 @@ export default function SignIn() {
       console.log(JSON.parse(sessionStorage.getItem('care-label-user') as string))
       router.push('/')
     }
-    else{
+    else if (response.status === 400){
       console.error("error during sign in",response)
-      setNotificationMessage(response.response.data.detail)
+      setNotificationMessage("Incorect email or password")
+      setNotificationStatus(false)
+      handleOpenNotification()
+    }
+    else {
+      console.error("error during sign in",response)
+      setNotificationMessage("Something unexpected happened please try again")
       setNotificationStatus(false)
       handleOpenNotification()
     }

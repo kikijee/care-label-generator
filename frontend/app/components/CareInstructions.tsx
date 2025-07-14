@@ -1,6 +1,7 @@
 import { Box, Typography, TextField, MenuItem, Button } from "@mui/material"
 import { usePendingData, usePendingDataDispatch } from "../context/CareEditorContext"
 import { careInstructions } from "@/public/data/data"
+import { Checkbox, FormControlLabel } from "@mui/material";
 
 export const CareInstructions = () => {
 
@@ -14,6 +15,10 @@ export const CareInstructions = () => {
             dispatch?.setCareInstructionsList(updated);
         }
     };
+
+    const handleIndChange =(event: React.ChangeEvent<HTMLInputElement>)=>{
+        dispatch?.setCareInstructionLangInd(event.target.checked)
+    }
 
     const addCareRow = () => {
         if (pendingData)
@@ -31,12 +36,19 @@ export const CareInstructions = () => {
                 sx={{
                     display: "flex",
                     justifyContent: "center",
+                    alignItems:'center',
+                    flexDirection:'column',
                     pt: 5
                 }}
             >
                 <Typography>
                     CARE INSTRUCTIONS
                 </Typography>
+                <FormControlLabel
+                    control={<Checkbox checked={pendingData?.careInstructionLangInd} onChange={handleIndChange} />}
+                    label={"Language Indicator"}
+                    sx={{pt:2}}
+                />
             </Box>
             {pendingData?.careInstructionsList.map((data, i) => (
                 <Box

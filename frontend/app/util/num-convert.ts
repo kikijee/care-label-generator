@@ -7,3 +7,8 @@ export function inchesToPixels(x: number, y: number): { xPixels: number; yPixels
 
     return { xPixels, yPixels };
 }
+
+export function millimetersToPixels(num: number){
+    const PPM = 3.7795275591;
+    return num * PPM;
+}

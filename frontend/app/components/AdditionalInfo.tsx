@@ -46,6 +46,10 @@ export const AdditionalInfo = () => {
         dispatch?.setLogoMarginBottom(Number(value))
     }
 
+    const handlePtChange = (value: string) => {
+        dispatch?.setAdditionalInfoPt(Number(value))
+    }
+
     const handleUploadClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (!event.target.files || event.target.files.length === 0) return;
 
@@ -196,6 +200,41 @@ export const AdditionalInfo = () => {
                 }}
             >
                 <Typography>
+                    PADDING TOP
+                </Typography>
+            </Box>
+
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: "center",
+                    gap: 5,
+                    p: 4
+                }}
+            >
+                <TextField
+                    helperText="seam allowence"
+                    type="number"
+                    value={pendingData?.additionalInfoPt}
+                    onChange={(e) => handlePtChange(e.target.value)}
+                    sx={{
+                        width: '250px'
+                    }}
+                    slotProps={{
+                        input: {
+                            endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+                        },
+                    }}
+                />
+            </Box>
+
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                }}
+            >
+                <Typography>
                     LOGO UPLOAD
                 </Typography>
             </Box>
@@ -288,7 +327,7 @@ export const AdditionalInfo = () => {
                                 }}
                                 slotProps={{
                                     input: {
-                                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                                     },
                                 }}
                             />
@@ -324,7 +363,7 @@ export const AdditionalInfo = () => {
                                 }}
                                 slotProps={{
                                     input: {
-                                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                                     },
                                 }}
                             />
@@ -360,7 +399,7 @@ export const AdditionalInfo = () => {
                                 }}
                                 slotProps={{
                                     input: {
-                                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
+                                        endAdornment: <InputAdornment position="end">mm</InputAdornment>,
                                     },
                                 }}
                             />

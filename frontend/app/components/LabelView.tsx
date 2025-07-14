@@ -1,7 +1,7 @@
 'use client'
 import { Box, Typography, CssBaseline, Container, SpeedDial, SpeedDialAction, TextField, Divider } from "@mui/material"
 import { materials, careInstructions, coo } from "@/public/data/data"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import VerticalTabs from "@/app/components/VerticalTabs";
 import { usePendingData, usePendingDataDispatch } from "@/app/context/CareEditorContext";
@@ -18,11 +18,13 @@ import LabelSaveDialog from "@/app/components/LabelSaveDialog";
 import Notification from "@/app/components/Notification";
 import { get_label_by_id } from "@/app/api-service/label";
 import SaveIcon from '@mui/icons-material/Save';
+import { millimetersToPixels } from "../util/num-convert";
+import { language_ind } from "@/public/data/data";
 
 
 export const LabelView = ({ id }: { id?: number }) => {
 
-    
+
 
     const pendingData = usePendingData();
     const dispatch = usePendingDataDispatch();
@@ -36,9 +38,127 @@ export const LabelView = ({ id }: { id?: number }) => {
     const [notificationMessage, setNotificationMessage] = useState("");
 
     const [loading, setLoading] = useState(true);
+    const [labels, setLabels] = useState<Array<{ content: string[] }>>([{ content: [] }]);
+
+
+
+    const generateLabels = () => {
+
+        const newLabels: { content: string[] }[] = [];
+        let currentLabel: string[] = [];
+        let currentHeight = millimetersToPixels(pendingData?.seamGap || 6);
+        currentHeight += millimetersToPixels(pendingData?.additionalInfoPt || 0);
+        const maxLabelWidth = millimetersToPixels(pendingData?.x || 30);
+        const maxLabelHeight = millimetersToPixels(pendingData?.y || 60);
+        if (pendingData?.logo) {
+            currentHeight += millimetersToPixels(pendingData.logoSize);
+        }
+        if (pendingData?.logoMarginBottom) {
+            currentHeight += millimetersToPixels(pendingData.logoMarginBottom);
+        }
+        if (pendingData?.logoMarginTop) {
+            currentHeight += millimetersToPixels(pendingData.logoMarginTop);
+        }
+
+        const getTextMetrics = (text: string, fontSize = `${pendingData?.fontSize}pt`, fontFamily = 'monospace') => {
+            const div = document.createElement("div");
+            div.style.position = "absolute";
+            div.style.visibility = "hidden";
+            div.style.whiteSpace = "pre-wrap";
+            div.style.wordBreak = "break-word";
+            div.style.width = `${maxLabelWidth}px`;
+            div.style.fontSize = fontSize;
+            div.style.fontFamily = fontFamily;
+            div.style.lineHeight = "1.5"; // MUI defualt
+            div.textContent = text;
+
+            document.body.appendChild(div);
+            const dimensions = { width: div.offsetWidth, height: div.offsetHeight };
+            document.body.removeChild(div);
+
+            return dimensions;
+        };
+
+        if (pendingData?.rnNumber) {
+            const { width: _, height: textHeight } = getTextMetrics(pendingData.rnNumber)
+            currentHeight += textHeight
+        }
+        if (pendingData?.address) {
+            const { width: _, height: textHeight } = getTextMetrics(pendingData.address)
+            currentHeight += textHeight
+        }
+        if (pendingData?.website) {
+            const { width: _, height: textHeight } = getTextMetrics(pendingData.website)
+            currentHeight += textHeight
+        }
+
+        const addTextToLabel = (text: string) => {
+
+            const { width: _, height: textHeight } = getTextMetrics(text)
+
+            if (currentHeight + textHeight > maxLabelHeight) {
+                newLabels.push({ content: currentLabel });
+                currentLabel = [];
+                currentHeight = millimetersToPixels(pendingData?.seamGap || 6);
+            }
+
+            currentLabel.push(text);
+            currentHeight += textHeight;
+        };
+
+        // Add COO information
+        if (pendingData?.cooIndex !== 0) {
+            pendingData?.selectedLanguages.forEach(lang => {
+                addTextToLabel(coo[lang.toLowerCase().replace(' ', '_') as keyof typeof coo][pendingData?.cooIndex]);
+            });
+        }
+
+        // Add Fiber Content
+        pendingData?.selectedLanguages.forEach((lang) => {
+            pendingData?.fiberContent.forEach((fiber, i) => {
+                if (fiber.material !== 0 && fiber.percentage !== 'Select') {
+                    if (i === 0 && pendingData.fiberContentLangInd) {
+                        addTextToLabel(`${language_ind[lang.toLowerCase().replace(' ', '_') as keyof typeof materials]}: ${fiber.percentage} ${materials[lang.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}`);
+                    }
+                    else {
+                        addTextToLabel(`${fiber.percentage} ${materials[lang.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}`);
+                    }
+                }
+            });
+        });
+
+        // Add Care Instructions
+        pendingData?.selectedLanguages.forEach((lang) => {
+            pendingData?.careInstructionsList.forEach((care, i) => {
+                if (care !== 0) {
+
+                    if (i === 0 && pendingData.careInstructionLangInd) {
+                        addTextToLabel(`${language_ind[lang.toLowerCase().replace(' ', '_') as keyof typeof materials]}: ${careInstructions[lang.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}`);
+                    }
+                    else {
+                        addTextToLabel(`${careInstructions[lang.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}`);
+                    }
+
+                }
+            });
+        });
+
+        // Add RN number, Address, Website
+        // if (pendingData?.rnNumber) addTextToLabel(`RN ${pendingData?.rnNumber}`);
+        // if (pendingData?.address) addTextToLabel(pendingData?.address);
+        // if (pendingData?.website) addTextToLabel(pendingData?.website);
+
+        // Push last label if it has content
+        if (currentLabel.length > 0) {
+            newLabels.push({ content: currentLabel });
+        }
+
+        setLabels(newLabels);
+    };
+
 
     useEffect(() => {
-        if (id){
+        if (id) {
             const fetchData = async () => {
                 const response = await get_label_by_id(id);
                 if (response.status === 200) {
@@ -60,6 +180,9 @@ export const LabelView = ({ id }: { id?: number }) => {
                     dispatch?.setLogoMarginTop(response.data.Measurements.LogoMarginTop);
                     dispatch?.setLogoMarginBottom(response.data.Measurements.LogoMarginBottom);
                     dispatch?.setLogo(response.data.ImageURL)
+                    dispatch?.setCareInstructionLangInd(response.data.CareInstructionLangInd || false)
+                    dispatch?.setFiberContentLangInd(response.data.FiberContentLangInd || false)
+                    dispatch?.setAdditionalInfoPt(response.data.AdditionalInfo.AdditionalInfoPt || 0);
                     setLoading(false);
                     console.log(response.data)
                 }
@@ -69,10 +192,15 @@ export const LabelView = ({ id }: { id?: number }) => {
             }
             fetchData();
         }
-        else{
+        else {
             setLoading(false);
         }
     }, [])
+
+    useEffect(() => {
+        generateLabels();
+    }, [pendingData])
+
 
     if (loading) {
         return (
@@ -118,21 +246,24 @@ export const LabelView = ({ id }: { id?: number }) => {
                     LogoMarginTop: pendingData?.logoMarginTop,
                     LogoMarginBottom: pendingData?.logoMarginBottom
                 },
-                CountryOfOrigin:pendingData?.cooIndex,
+                CountryOfOrigin: pendingData?.cooIndex,
                 FiberContent: pendingData?.fiberContent,
                 CareLabel: pendingData?.careInstructionsList,
+                FiberContentLangInd: pendingData?.fiberContentLangInd || false,
+                CareInstructionLangInd: pendingData?.careInstructionLangInd || false,
                 AdditionalInfo: {
                     RnNumber: pendingData?.rnNumber,
                     Address: pendingData?.address,
-                    Website: pendingData?.website
+                    Website: pendingData?.website,
+                    AdditionalInfoPt: pendingData?.additionalInfoPt
                 },
                 Languages: pendingData?.selectedLanguages,
             }
         };
         const response = await save_label(body);
 
-        
-        if (pendingData?.logoFormData){
+
+        if (pendingData?.logoFormData) {
             const response_label = await upload_logo(pendingData.logoFormData, response.data.sql.LabelID);
 
             if (response.status === 201 && response_label.status === 200) {
@@ -148,7 +279,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                 console.error("error in label save", response.data.message, response_label.data);
             }
         }
-        else{
+        else {
             if (response.status === 201) {
                 setNotificationStatus(true)
                 setNotification(true)
@@ -162,11 +293,11 @@ export const LabelView = ({ id }: { id?: number }) => {
                 console.error("error in label save", response.data.message);
             }
         }
-        
+
     }
 
     const handleLabelUpdate = async () => {
-        if(id){
+        if (id) {
             const body = {
                 label_data: {
                     Title: title,
@@ -181,25 +312,28 @@ export const LabelView = ({ id }: { id?: number }) => {
                         LogoMarginTop: pendingData?.logoMarginTop,
                         LogoMarginBottom: pendingData?.logoMarginBottom
                     },
-                    CountryOfOrigin:pendingData?.cooIndex,
+                    CountryOfOrigin: pendingData?.cooIndex,
                     FiberContent: pendingData?.fiberContent,
                     CareLabel: pendingData?.careInstructionsList,
+                    FiberContentLangInd: pendingData?.fiberContentLangInd || false,
+                    CareInstructionLangInd: pendingData?.careInstructionLangInd || false,
                     AdditionalInfo: {
                         RnNumber: pendingData?.rnNumber,
                         Address: pendingData?.address,
-                        Website: pendingData?.website
+                        Website: pendingData?.website,
+                        AdditionalInfoPt: pendingData?.additionalInfoPt
                     },
                     Languages: pendingData?.selectedLanguages
                 }
             };
             const response = await update_label(body, id);
-            let response_label = {status:200,data:{}};
+            let response_label = { status: 200, data: {} };
 
-            if (pendingData?.logoFormData){
+            if (pendingData?.logoFormData) {
                 response_label = await upload_logo(pendingData.logoFormData, id);
             }
 
-            if (pendingData?.logo === ""){
+            if (pendingData?.logo === "") {
                 const res = await remove_logo(id);
                 console.log(res);
             }
@@ -355,7 +489,7 @@ export const LabelView = ({ id }: { id?: number }) => {
                         sx={{
                             bgcolor: "#212121",
                             minHeight: '100vh',
-                            minWidth:'50%',
+                            minWidth: '50%',
                             borderRight: 1,
                             borderColor: 'divider',
                         }}
@@ -363,38 +497,38 @@ export const LabelView = ({ id }: { id?: number }) => {
                         <Box
                             sx={{
                                 display: "flex",
-                                alignItems:'center',
-                                py:3,
+                                alignItems: 'center',
+                                py: 3,
                             }}
                         >
-                            { id ?
-                            <>
+                            {id ?
+                                <>
+                                    <Typography
+                                        sx={{
+                                            fontSize: { xl: 20, lg: 20, md: 20, sm: 15, xs: 15 },
+                                            px: 2
+                                        }}
+                                    >
+                                        CARE LABEL OPTIONS {` LABEL: `}
+                                    </Typography>
+                                    <TextField
+                                        size="small"
+                                        value={title}
+                                        onChange={(e: any) => setTitle(e.target.value)}
+                                    />
+                                </>
+                                :
                                 <Typography
                                     sx={{
-                                        fontSize: {xl:20,lg:20,md:20,sm:15,xs:15},
-                                        px:2
+                                        fontSize: { xl: 20, lg: 20, md: 20, sm: 15, xs: 15 },
+                                        pr: 2
                                     }}
                                 >
-                                    CARE LABEL OPTIONS {` LABEL: `}
+                                    CARE LABEL OPTIONS
                                 </Typography>
-                                <TextField 
-                                    size="small"
-                                    value={title}
-                                    onChange={(e:any)=>setTitle(e.target.value)}
-                                />
-                            </>
-                            :
-                            <Typography
-                                sx={{
-                                    fontSize: {xl:20,lg:20,md:20,sm:15,xs:15},
-                                    pr:2
-                                }}
-                            >
-                                CARE LABEL OPTIONS
-                            </Typography>
                             }
                         </Box>
-                        <Divider sx={{width:'100%'}}/>
+                        <Divider sx={{ width: '100%' }} />
                         <VerticalTabs />
 
 
@@ -441,137 +575,112 @@ export const LabelView = ({ id }: { id?: number }) => {
                                     padding: 4,
                                 }}
                             >
-                                {pendingData?.selectedLanguages.map((data: string, i) => (
+                                {labels.map((label, i) => (
                                     <Box key={i}>
-                                        <Typography>
-                                            {data}
-                                        </Typography>
                                         <Box
                                             sx={{
                                                 display: 'flex',
                                                 flexDirection: 'column',
-                                                width: (pendingData?.x * 96 || 113.28) * ((pendingData.zoom) * 0.01 + 1),
-                                                height: (pendingData?.y * 96 || 226.56) * ((pendingData.zoom) * 0.01 + 1),
+                                                width: millimetersToPixels(pendingData?.x || 29.972) * (((pendingData?.zoom || 75) * 0.01) + 1),
+                                                minHeight: millimetersToPixels(pendingData?.y || 59.944) * (((pendingData?.zoom || 75) * 0.01) + 1),
                                                 bgcolor: 'white',
-                                                paddingTop: `${(pendingData?.seamGap * 96) * ((pendingData.zoom) * 0.01 + 1)}px`,
-        
+                                                paddingTop: `${millimetersToPixels(pendingData?.seamGap || 6.35) * (((pendingData?.zoom || 75) * 0.01) + 1)}px`,
                                             }}
                                         >
-                                            { pendingData.logo &&
+                                            {pendingData?.logo && i === 0 && (
+                                                <Box sx={{ display: 'flex', justifyContent: "center", pt: `${millimetersToPixels(pendingData.logoMarginTop) * ((pendingData.zoom * 0.01) + 1)}px`, pb: `${millimetersToPixels(pendingData.logoMarginBottom) * ((pendingData.zoom * 0.01) + 1)}px` }}>
+                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ height: `${(millimetersToPixels(pendingData.logoSize) * ((pendingData.zoom * 0.01) + 1))}px`, width: "auto" }} />
+                                                </Box>
+                                            )}
+
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start', textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left', paddingLeft: `${millimetersToPixels(pendingData?.marginLeft || 0) * ((pendingData?.marginLeft || 0) * 0.01 + 1)}px` }}>
+                                                {label.content.map((text, index) => {
+                                                    const match = text.match(/^([A-Z]{2,3}):\s*(.*)$/);
+                                                    const lang = match ? match[1] : '';
+                                                    const content = match ? match[2] : text;
+
+                                                    return (
+                                                        <Box
+                                                            key={index}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'flex-start',
+                                                                textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                            }}
+                                                        >
+
+                                                            {lang ?
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: '#000',
+                                                                        fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`,
+                                                                        flex: 1,
+                                                                        textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                                    }}
+                                                                >
+                                                                    <b>{lang}</b>: {content}
+                                                                </Typography>
+                                                                :
+                                                                <Typography
+                                                                    sx={{
+                                                                        color: '#000',
+                                                                        fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`,
+                                                                        flex: 1,
+                                                                        textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                                    }}
+                                                                >
+                                                                    {content}
+                                                                </Typography>
+                                                            }
+                                                        </Box>
+                                                    );
+                                                })}
+                                            </Box>
+                                            {i === 0 && (
                                                 <Box
                                                     sx={{
+                                                        marginTop: 'auto',
                                                         display: 'flex',
-                                                        justifyContent: "center",
-                                                        pt: `${(pendingData?.logoMarginTop * 96) * ((pendingData.zoom) * 0.01 + 1)}px`,
-                                                        pb: `${(pendingData?.logoMarginBottom * 96) * ((pendingData.zoom) * 0.01 + 1)}px`
+                                                        flexDirection: 'column',
+                                                        alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start',
+                                                        textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
+                                                        paddingLeft: `${millimetersToPixels(pendingData?.marginLeft || 0) * ((pendingData?.marginLeft || 0) * 0.01 + 1)}px`,
                                                     }}
-                                                >
-                                                    <img src={pendingData.logo} alt="Uploaded Preview" style={{ width: `${((pendingData?.logoSize*96)*((pendingData.zoom) * 0.01 + 1))}px`, height: "auto"}} />
+                                                > {/* Ensures bottom alignment */}
+                                                    {pendingData?.rnNumber &&
+                                                        <Typography
+                                                            sx={{
+                                                                color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`
+                                                            }}
+                                                        >
+                                                            {`RN ${pendingData?.rnNumber}`}
+                                                        </Typography>
+                                                    }
+                                                    {pendingData?.address &&
+                                                        <Typography
+                                                            sx={{
+                                                                color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`
+                                                            }}
+                                                        >
+                                                            {pendingData?.address}
+                                                        </Typography>
+                                                    }
+                                                    {pendingData?.website &&
+                                                        <Typography
+                                                            sx={{
+                                                                color: '#000', fontSize: `${(pendingData?.fontSize || 6) * ((pendingData?.zoom || 75) * 0.01 + 1)}pt`
+                                                            }}
+                                                        >
+                                                            {pendingData?.website}
+                                                        </Typography>
+                                                    }
                                                 </Box>
-                                            }
-                                            <Box
-                                                sx={{
-                                                    display:'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start',
-                                                    textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
-                                                    paddingLeft: `${(pendingData?.marginLeft * 96) * ((pendingData.marginLeft) * 0.01 + 1)}px`,
-                                                }}
-                                            >
-                                                {pendingData?.cooIndex !== 0 &&
-                                                    <Typography 
-                                                        sx={{ 
-                                                            color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1)
-                                                        }}
-                                                    >
-                                                        {coo[data.toLowerCase().replace(' ', '_') as keyof typeof materials][pendingData?.cooIndex]}
-                                                    </Typography>
-                                                }
-                                                {pendingData?.fiberContent.map((fiber, index) => (
-                                                    fiber.material !== 0 && fiber.percentage !== 'Select' &&
-                                                    <Typography
-                                                        key={index} 
-                                                        sx={{ 
-                                                            color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1)
-                                                        }}
-                                                    >
-                                                        {fiber.percentage} {materials[data.toLowerCase().replace(' ', '_') as keyof typeof materials][fiber.material]}
-                                                    </Typography>
-                                                ))}
-                                                {pendingData?.careInstructionsList.map((care, index) => (
-                                                    care !== 0 &&
-                                                    <Typography 
-                                                        key={index} 
-                                                        sx={{ 
-                                                            color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1)
-                                                        }}
-                                                    >
-                                                        {careInstructions[data.toLowerCase().replace(' ', '_') as keyof typeof careInstructions][care]}
-                                                    </Typography>
-                                                ))}
-                                            </Box>
-                                            <Box 
-                                                sx={{
-                                                    marginTop: 'auto',
-                                                    display:'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: pendingData?.alignment === 'Center' ? 'center' : 'flex-start',
-                                                    textAlign: pendingData?.alignment === 'Center' ? 'center' : 'left',
-                                                    paddingLeft: `${(pendingData?.marginLeft * 96) * ((pendingData.marginLeft) * 0.01 + 1)}px`,
-                                                }}
-                                            > {/* Ensures bottom alignment */}
-                                                {pendingData?.rnNumber !== "" &&
-                                                    <Typography
-                                                        sx={{ 
-                                                            color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1)
-                                                        }}
-                                                    >
-                                                        {`RN ${pendingData?.rnNumber}`}
-                                                    </Typography>
-                                                }
-                                                {pendingData?.address !== "" &&
-                                                    <Typography
-                                                        sx={{ 
-                                                            color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1)
-                                                        }}
-                                                    >
-                                                        {pendingData?.address}
-                                                    </Typography>
-                                                }
-                                                {pendingData?.website !== "" &&
-                                                    <Typography
-                                                        sx={{ 
-                                                            color: '#000', fontSize: pendingData?.fontSize * 0.75 * ((pendingData.zoom) * 0.01 + 1)
-                                                        }}
-                                                    >
-                                                        {pendingData?.website}
-                                                    </Typography>
-                                                }
-                                            </Box>
+                                            )}
                                         </Box>
                                     </Box>
                                 ))}
 
                             </Box>
-                            {/* <Draggable nodeRef={myRef}>
-                    <div 
-                        ref={myRef} 
-                        style={{ 
-                            display: 'inline-block', 
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                ":hover":{
-                                    cursor:"grab"
-                                },
-                                
-                            }}
-                        >
-                            <Typography>HELLO</Typography>
-                        </Box>
-                    </div>
-                </Draggable> */}
                         </Container>
                         :
                         <Container
@@ -634,12 +743,12 @@ export const LabelView = ({ id }: { id?: number }) => {
                         tooltipTitle="Save As New Label"
                         onClick={() => setOpenSaveDialog(true)}
                     />
-                    { id &&
-                    <SpeedDialAction
-                        icon={<SaveIcon />}
-                        tooltipTitle="Save Label"
-                        onClick={handleLabelUpdate}
-                    />
+                    {id &&
+                        <SpeedDialAction
+                            icon={<SaveIcon />}
+                            tooltipTitle="Save Label"
+                            onClick={handleLabelUpdate}
+                        />
                     }
                 </SpeedDial>
                 <LabelSaveDialog open={openSaveDialog} setOpen={setOpenSaveDialog} saveLabel={handleLabelSave} />
