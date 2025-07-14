@@ -80,21 +80,21 @@ export const LabelView = ({ id }: { id?: number }) => {
         };
 
         if (pendingData?.rnNumber) {
-            const { width: _, height: textHeight } = getTextMetrics(pendingData.rnNumber)
+            const { height: textHeight } = getTextMetrics(pendingData.rnNumber)
             currentHeight += textHeight
         }
         if (pendingData?.address) {
-            const { width: _, height: textHeight } = getTextMetrics(pendingData.address)
+            const { height: textHeight } = getTextMetrics(pendingData.address)
             currentHeight += textHeight
         }
         if (pendingData?.website) {
-            const { width: _, height: textHeight } = getTextMetrics(pendingData.website)
+            const { height: textHeight } = getTextMetrics(pendingData.website)
             currentHeight += textHeight
         }
 
         const addTextToLabel = (text: string) => {
 
-            const { width: _, height: textHeight } = getTextMetrics(text)
+            const { height: textHeight } = getTextMetrics(text)
 
             if (currentHeight + textHeight > maxLabelHeight) {
                 newLabels.push({ content: currentLabel });
